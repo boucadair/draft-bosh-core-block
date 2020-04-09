@@ -196,9 +196,6 @@ Table 3: CoAP Block3 ad Block4 Option Numbers]]></artwork>
     </section>
 
     <section anchor="security" title="Security Considerations">
-      <t>Security considerations related to CoAP proxying are discussed in
-      Section 11.2 of <xref target="RFC7252"></xref>.</t>
-
       <t>TBC.</t>
     </section>
 
