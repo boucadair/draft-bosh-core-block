@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<!DOCTYPE rfc SYSTEM "rfc2629.dtd">
+<?rfc toc="yes"?>
+<?rfc tocompact="yes"?>
+<?rfc tocdepth="4"?>
+<?rfc tocindent="yes"?>
+<?rfc symrefs="yes"?>
+<?rfc sortrefs="yes"?>
+<?rfc comments="yes"?>
+<?rfc inline="yes"?>
+<?rfc compact="yes"?>
+<?rfc subcompact="no"?>
+<rfc category="std" docName="draft-bosh-core-new-block-00" ipr="trust200902">
+  <front>
+    <title abbrev="New Block-Wise Transfer Options">New Constrained
+    Application Protocol (CoAP) Block-Wise Transfer Options</title>
+
+    <author fullname="Mohamed Boucadair" initials="M." surname="Boucadair">
+      <organization>Orange</organization>
+
+      <address>
+        <postal>
+          <street></street>
+
+          <city>Rennes</city>
+
+          <region></region>
+
+          <code>35000</code>
+
+          <country>France</country>
+        </postal>
+
+        <email>mohamed.boucadair@orange.com</email>
+      </address>
+    </author>
+
+    <author fullname="Jon Shallow" initials="J." surname="Shallow">
+      <organization></organization>
+
+      <address>
+        <postal>
+          <street></street>
+
+          <city></city>
+
+          <region></region>
+
+          <code></code>
+
+          <country>United Kingdom</country>
+        </postal>
+
+        <email>supjps-ietf@jpshallow.com</email>
+      </address>
+    </author>
+
+    <date />
+
+    <workgroup>CORE</workgroup>
+
+    <keyword>security</keyword>
+
+    <keyword>mitigation</keyword>
+
+    <keyword>service delivery</keyword>
+
+    <keyword>connectivity</keyword>
+
+    <keyword>anti-DDoS</keyword>
+
+    <keyword>automation</keyword>
+
+    <keyword>cooperation</keyword>
+
+    <keyword>Resilience</keyword>
+
+    <keyword>Filtering</keyword>
+
+    <keyword>Security Center</keyword>
+
+    <keyword>Mitigator</keyword>
+
+    <keyword>Scrubbing</keyword>
+
+    <keyword>dynamic service protection</keyword>
+
+    <keyword>dynamic mitigation</keyword>
+
+    <abstract>
+      <t>wwww.</t>
+    </abstract>
+  </front>
+
+  <middle>
+    <section anchor="introduction" title="Introduction">
+      <t>xxx</t>
+
+      <t>Only the deviation from Block1 and Block2 options will be
+      specified.</t>
+    </section>
+
+    <section anchor="notation" title="Terminology">
+      <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+      "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+      "OPTIONAL" in this document are to be interpreted as described in BCP 14
+      <xref target="RFC2119"></xref><xref target="RFC8174"></xref> when, and
+      only when, they appear in all capitals, as shown here.</t>
+
+      <t>Readers should be familiar with the terms and concepts defined in
+      <xref target="RFC7252"></xref>.</t>
+    </section>
+
+    <section anchor="spec" title="The Block3 and Block4 Options">
+      <t>The properties of Block3 ad Block4 options are shown in Table 1. The
+      formatting of this table follows the one used in Table 4 of <xref
+      target="RFC7252"></xref> (Section 5.10). The C, U, N, and R columns
+      indicate the properties Critical, Unsafe, NoCacheKey, and Repeatable
+      defined in Section 5.4 of <xref target="RFC7252"></xref>. Since
+      NoCacheKey only has a meaning for options that are Safe-to-Forward, the
+      N column is filled with a dash for Block3 ad Block4 options.</t>
+
+      <t><figure align="center">
+          <artwork align="center"><![CDATA[+--------+---+---+---+---+-----------+--------+--------+---------+
+| Number | C | U | N | R | Name      | Format | Length | Default |
++--------+---+---+---+---+-----------+--------+--------+---------+
+|  TBA1  | x | x | - |   | Block3    | uint   |  0-3   |   None  |
+|  TBA2  | x | x | - |   | Block4    | uint   |  0-3   |   None  |
++--------+---+---+---+---+-----------+--------+--------+---------+
+
+           Table 1: CoAP Block3 ad Block4 Option Properties]]></artwork>
+        </figure></t>
+
+      <t>The Block3 Option pertains to the request payload, and the Block4
+      Option pertains to the response payload.</t>
+
+      <t>The xxx option (<xref target="option"></xref>) is a critical option
+      used to detect and prevent infinite loops of CoAP requests when proxies
+      are involved. </t>
+
+      <t>Both Block3 and Block4 options are not repeatable. Therefore, any
+      request carrying multiple Block3 (or Block4) options MUST be handled
+      following the procedure specified in Section 5.4.5 of <xref
+      target="RFC7252"></xref>.</t>
+
+      <t>The structure of Block3 ad Block4 options MUST follow the structure
+      defined in Secion 2.2 of <xref target="RFC7959"></xref>.</t>
+
+      <t>The Block3 ad Block4 options are not safe to forward. </t>
+
+      <t>TBC.</t>
+    </section>
+
+    <section title="Examples">
+      <t></t>
+    </section>
+
+    <section title="Caching Considerations">
+      <t>xxx</t>
+    </section>
+
+    <section title="HTTP-Mapping Considerations">
+      <t>This section focuses on the HTTP mappings specific to the CoAP
+      extension specified in this document. As a reminder, the basic normative
+      requirements on HTTP/CoAP mappings are defined in Section 10 of <xref
+      target="RFC7252"></xref>. The implementation guidelines for HTTP/CoAP
+      mappings are elaborated in <xref target="RFC8075"></xref>.</t>
+
+      <t>The rules defined in Section 5 of <xref target="RFC7959"></xref> are
+      to be followed.</t>
+    </section>
+
+    <section anchor="IANA" title="IANA Considerations">
+      <t><list style="empty">
+          <t>Editorial Note: Please update TBA1/TBA2 statements within the
+          document with the assigned codes.</t>
+        </list></t>
+
+      <section anchor="option" title="CoAP Option Numbers">
+        <t>IANA is requested to add the following entry to the "CoAP Option
+        Numbers" sub-registry available at
+        https://www.iana.org/assignments/core-parameters/core-parameters.xhtml#option-numbers:</t>
+
+        <t><figure align="center">
+            <artwork align="center"><![CDATA[+--------+------------------+-----------+
+| Number | Name             | Reference |
++--------+------------------+-----------+
+|  TBA1  | Block3           | [RFCXXXX] |
+|  TBA2  | Block4           | [RFCXXXX] |
++--------+------------------+-----------+
+
+Table 3: CoAP Block3 ad Block4 Option Numbers]]></artwork>
+          </figure></t>
+
+        <t>This document suggests XXX and XXX as a values to be assigned for
+        the new option numbers.</t>
+      </section>
+    </section>
+
+    <section anchor="security" title="Security Considerations">
+      <t>Security considerations related to CoAP proxying are discussed in
+      Section 11.2 of <xref target="RFC7252"></xref>.</t>
+
+      <t>TBC.</t>
+    </section>
+
+    <section anchor="ack" title="Acknowledgements">
+      <t>Thanks to Carsten Bormann, XXX for the comments.</t>
+    </section>
+  </middle>
+
+  <back>
+    <references title="Normative References">
+      <?rfc include="reference.RFC.2119"?>
+
+      <?rfc include="reference.RFC.7252"?>
+
+      <?rfc include='reference.RFC.8174'?>
+
+      <?rfc include='reference.RFC.7230'?>
+
+      <?rfc include='reference.RFC.8075'?>
+
+      <?rfc include='reference.RFC.7959'?>
+
+      <?rfc include='reference.RFC.7641'?>
+    </references>
+
+    <references title="Informative References">
+      <?rfc include="reference.I-D.ietf-dots-signal-channel"?>
+
+      <?rfc include='reference.RFC.8586'?>
+    </references>
+  </back>
+</rfc>

@@ -1,0 +1,280 @@
+
+
+
+
+CORE                                                        M. Boucadair
+Internet-Draft                                                    Orange
+Intended status: Standards Track                              J. Shallow
+Expires: October 11, 2020                                  April 9, 2020
+
+
+New Constrained Application Protocol (CoAP) Block-Wise Transfer Options
+                      draft-bosh-core-new-block-00
+
+Abstract
+
+   wwww.
+
+Status of This Memo
+
+   This Internet-Draft is submitted in full conformance with the
+   provisions of BCP 78 and BCP 79.
+
+   Internet-Drafts are working documents of the Internet Engineering
+   Task Force (IETF).  Note that other groups may also distribute
+   working documents as Internet-Drafts.  The list of current Internet-
+   Drafts is at https://datatracker.ietf.org/drafts/current/.
+
+   Internet-Drafts are draft documents valid for a maximum of six months
+   and may be updated, replaced, or obsoleted by other documents at any
+   time.  It is inappropriate to use Internet-Drafts as reference
+   material or to cite them other than as "work in progress."
+
+   This Internet-Draft will expire on October 11, 2020.
+
+Copyright Notice
+
+   Copyright (c) 2020 IETF Trust and the persons identified as the
+   document authors.  All rights reserved.
+
+   This document is subject to BCP 78 and the IETF Trust's Legal
+   Provisions Relating to IETF Documents
+   (https://trustee.ietf.org/license-info) in effect on the date of
+   publication of this document.  Please review these documents
+   carefully, as they describe your rights and restrictions with respect
+   to this document.  Code Components extracted from this document must
+   include Simplified BSD License text as described in Section 4.e of
+   the Trust Legal Provisions and are provided without warranty as
+   described in the Simplified BSD License.
+
+
+
+
+
+
+
+Boucadair & Shallow     Expires October 11, 2020                [Page 1]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
+
+Table of Contents
+
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   2
+   3.  The Block3 and Block4 Options . . . . . . . . . . . . . . . .   2
+   4.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . .   3
+   5.  Caching Considerations  . . . . . . . . . . . . . . . . . . .   3
+   6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .   3
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   3
+     7.1.  CoAP Option Numbers . . . . . . . . . . . . . . . . . . .   4
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
+   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   4
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   4
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .   4
+     10.2.  Informative References . . . . . . . . . . . . . . . . .   5
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   5
+
+1.  Introduction
+
+   xxx
+
+   Only the deviation from Block1 and Block2 options will be specified.
+
+2.  Terminology
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
+   "OPTIONAL" in this document are to be interpreted as described in BCP
+   14 [RFC2119][RFC8174] when, and only when, they appear in all
+   capitals, as shown here.
+
+   Readers should be familiar with the terms and concepts defined in
+   [RFC7252].
+
+3.  The Block3 and Block4 Options
+
+   The properties of Block3 ad Block4 options are shown in Table 1.  The
+   formatting of this table follows the one used in Table 4 of [RFC7252]
+   (Section 5.10).  The C, U, N, and R columns indicate the properties
+   Critical, Unsafe, NoCacheKey, and Repeatable defined in Section 5.4
+   of [RFC7252].  Since NoCacheKey only has a meaning for options that
+   are Safe-to-Forward, the N column is filled with a dash for Block3 ad
+   Block4 options.
+
+
+
+
+
+
+
+
+Boucadair & Shallow     Expires October 11, 2020                [Page 2]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
+
+    +--------+---+---+---+---+-----------+--------+--------+---------+
+    | Number | C | U | N | R | Name      | Format | Length | Default |
+    +--------+---+---+---+---+-----------+--------+--------+---------+
+    |  TBA1  | x | x | - |   | Block3    | uint   |  0-3   |   None  |
+    |  TBA2  | x | x | - |   | Block4    | uint   |  0-3   |   None  |
+    +--------+---+---+---+---+-----------+--------+--------+---------+
+
+               Table 1: CoAP Block3 ad Block4 Option Properties
+
+   The Block3 Option pertains to the request payload, and the Block4
+   Option pertains to the response payload.
+
+   The xxx option (Section 7.1) is a critical option used to detect and
+   prevent infinite loops of CoAP requests when proxies are involved.
+
+   Both Block3 and Block4 options are not repeatable.  Therefore, any
+   request carrying multiple Block3 (or Block4) options MUST be handled
+   following the procedure specified in Section 5.4.5 of [RFC7252].
+
+   The structure of Block3 ad Block4 options MUST follow the structure
+   defined in Secion 2.2 of [RFC7959].
+
+   The Block3 ad Block4 options are not safe to forward.
+
+   TBC.
+
+4.  Examples
+
+5.  Caching Considerations
+
+   xxx
+
+6.  HTTP-Mapping Considerations
+
+   This section focuses on the HTTP mappings specific to the CoAP
+   extension specified in this document.  As a reminder, the basic
+   normative requirements on HTTP/CoAP mappings are defined in
+   Section 10 of [RFC7252].  The implementation guidelines for HTTP/CoAP
+   mappings are elaborated in [RFC8075].
+
+   The rules defined in Section 5 of [RFC7959] are to be followed.
+
+7.  IANA Considerations
+
+      Editorial Note: Please update TBA1/TBA2 statements within the
+      document with the assigned codes.
+
+
+
+
+
+Boucadair & Shallow     Expires October 11, 2020                [Page 3]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
+
+7.1.  CoAP Option Numbers
+
+   IANA is requested to add the following entry to the "CoAP Option
+   Numbers" sub-registry available at https://www.iana.org/assignments/
+   core-parameters/core-parameters.xhtml#option-numbers:
+
+               +--------+------------------+-----------+
+               | Number | Name             | Reference |
+               +--------+------------------+-----------+
+               |  TBA1  | Block3           | [RFCXXXX] |
+               |  TBA2  | Block4           | [RFCXXXX] |
+               +--------+------------------+-----------+
+
+               Table 3: CoAP Block3 ad Block4 Option Numbers
+
+   This document suggests XXX and XXX as a values to be assigned for the
+   new option numbers.
+
+8.  Security Considerations
+
+   Security considerations related to CoAP proxying are discussed in
+   Section 11.2 of [RFC7252].
+
+   TBC.
+
+9.  Acknowledgements
+
+   Thanks to Carsten Bormann, XXX for the comments.
+
+10.  References
+
+10.1.  Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119,
+              DOI 10.17487/RFC2119, March 1997,
+              <https://www.rfc-editor.org/info/rfc2119>.
+
+   [RFC7230]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
+              Protocol (HTTP/1.1): Message Syntax and Routing",
+              RFC 7230, DOI 10.17487/RFC7230, June 2014,
+              <https://www.rfc-editor.org/info/rfc7230>.
+
+   [RFC7252]  Shelby, Z., Hartke, K., and C. Bormann, "The Constrained
+              Application Protocol (CoAP)", RFC 7252,
+              DOI 10.17487/RFC7252, June 2014,
+              <https://www.rfc-editor.org/info/rfc7252>.
+
+
+
+
+Boucadair & Shallow     Expires October 11, 2020                [Page 4]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
+
+   [RFC7641]  Hartke, K., "Observing Resources in the Constrained
+              Application Protocol (CoAP)", RFC 7641,
+              DOI 10.17487/RFC7641, September 2015,
+              <https://www.rfc-editor.org/info/rfc7641>.
+
+   [RFC7959]  Bormann, C. and Z. Shelby, Ed., "Block-Wise Transfers in
+              the Constrained Application Protocol (CoAP)", RFC 7959,
+              DOI 10.17487/RFC7959, August 2016,
+              <https://www.rfc-editor.org/info/rfc7959>.
+
+   [RFC8075]  Castellani, A., Loreto, S., Rahman, A., Fossati, T., and
+              E. Dijk, "Guidelines for Mapping Implementations: HTTP to
+              the Constrained Application Protocol (CoAP)", RFC 8075,
+              DOI 10.17487/RFC8075, February 2017,
+              <https://www.rfc-editor.org/info/rfc8075>.
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+10.2.  Informative References
+
+   [I-D.ietf-dots-signal-channel]
+              Reddy.K, T., Boucadair, M., Patil, P., Mortensen, A., and
+              N. Teague, "Distributed Denial-of-Service Open Threat
+              Signaling (DOTS) Signal Channel Specification", draft-
+              ietf-dots-signal-channel-41 (work in progress), January
+              2020.
+
+   [RFC8586]  Ludin, S., Nottingham, M., and N. Sullivan, "Loop
+              Detection in Content Delivery Networks (CDNs)", RFC 8586,
+              DOI 10.17487/RFC8586, April 2019,
+              <https://www.rfc-editor.org/info/rfc8586>.
+
+Authors' Addresses
+
+   Mohamed Boucadair
+   Orange
+   Rennes  35000
+   France
+
+   Email: mohamed.boucadair@orange.com
+
+
+   Jon Shallow
+   United Kingdom
+
+   Email: supjps-ietf@jpshallow.com
+
+
+
+Boucadair & Shallow     Expires October 11, 2020                [Page 5]
