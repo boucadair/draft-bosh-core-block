@@ -134,9 +134,7 @@
       <t>The Block3 Option pertains to the request payload, and the Block4
       Option pertains to the response payload.</t>
 
-      <t>The xxx option (<xref target="option"></xref>) is a critical option
-      used to detect and prevent infinite loops of CoAP requests when proxies
-      are involved. </t>
+      <t></t>
 
       <t>Both Block3 and Block4 options are not repeatable. Therefore, any
       request carrying multiple Block3 (or Block4) options MUST be handled
