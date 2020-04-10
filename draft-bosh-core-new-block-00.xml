@@ -113,6 +113,12 @@
 
       <t>Readers should be familiar with the terms and concepts defined in
       <xref target="RFC7252"></xref>.</t>
+
+      <t>The terms "payload" and "body" are defined in <xref
+      target="RFC7959"></xref>. The term "payload" is thus used for the actual
+      content of a single CoAP message (i.e., a single block being
+      transferred), while the term "body" is used for the entire resource
+      representation that is being transferred in a block-wise fashion.</t>
     </section>
 
     <section anchor="spec" title="The Block3 and Block4 Options">
@@ -137,8 +143,6 @@
 
       <t>The Block3 Option pertains to the request payload, and the Block4
       Option pertains to the response payload.</t>
-
-      <t></t>
 
       <t>Both Block3 and Block4 options are not repeatable. Therefore, any
       request carrying multiple Block3 (or Block4) options MUST be handled

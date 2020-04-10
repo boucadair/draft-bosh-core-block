@@ -90,6 +90,12 @@ Table of Contents
    Readers should be familiar with the terms and concepts defined in
    [RFC7252].
 
+   The terms "payload" and "body" are defined in [RFC7959].  The term
+   "payload" is thus used for the actual content of a single CoAP
+   message (i.e., a single block being transferred), while the term
+   "body" is used for the entire resource representation that is being
+   transferred in a block-wise fashion.
+
 3.  The Block3 and Block4 Options
 
    The properties of Block3 ad Block4 options are shown in Table 1.  The
@@ -99,12 +105,6 @@ Table of Contents
    of [RFC7252].  Since NoCacheKey only has a meaning for options that
    are Safe-to-Forward, the N column is filled with a dash for Block3 ad
    Block4 options.
-
-
-
-
-
-
 
 
 
