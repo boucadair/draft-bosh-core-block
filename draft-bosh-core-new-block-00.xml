@@ -158,7 +158,18 @@
     </section>
 
     <section title="Caching Considerations">
-      <t>xxx</t>
+      <t>The considerations discussed in Section 2.10 of <xref
+      target="RFC7959"></xref> apply for the Block3 ad Block4 options .</t>
+
+      <t>This specification does not require a proxy to obtain the complete
+      representation before it serves parts of it to. </t>
+
+      <t>A proxy that supports Block3 ad Block4 options must be prepared to
+      receive a GET request indicating one or more missing blocks The server
+      can serve from its cache blocks that are available in its cache. If one
+      more requested blocks are not available locally, the proxy MUST update
+      the GET request to list only missing blocks, and then forward the
+      request to the next hop. </t>
     </section>
 
     <section title="HTTP-Mapping Considerations">
@@ -169,7 +180,7 @@
       mappings are elaborated in <xref target="RFC8075"></xref>.</t>
 
       <t>The rules defined in Section 5 of <xref target="RFC7959"></xref> are
-      to be followed.</t>
+      to be followed. </t>
     </section>
 
     <section anchor="IANA" title="IANA Considerations">

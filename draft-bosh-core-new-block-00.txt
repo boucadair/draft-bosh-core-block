@@ -66,7 +66,7 @@ Table of Contents
    4.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . .   3
    5.  Caching Considerations  . . . . . . . . . . . . . . . . . . .   3
    6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .   3
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   3
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
      7.1.  CoAP Option Numbers . . . . . . . . . . . . . . . . . . .   4
    8.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
    9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   4
@@ -141,7 +141,18 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
 5.  Caching Considerations
 
-   xxx
+   The considerations discussed in Section 2.10 of [RFC7959] apply for
+   the Block3 ad Block4 options .
+
+   This specification does not require a proxy to obtain the complete
+   representation before it serves parts of it to.
+
+   A proxy that supports Block3 ad Block4 options must be prepared to
+   receive a GET request indicating one or more missing blocks The
+   server can serve from its cache blocks that are available in its
+   cache.  If one more requested blocks are not available locally, the
+   proxy MUST update the GET request to list only missing blocks, and
+   then forward the request to the next hop.
 
 6.  HTTP-Mapping Considerations
 
@@ -151,17 +162,6 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    Section 10 of [RFC7252].  The implementation guidelines for HTTP/CoAP
    mappings are elaborated in [RFC8075].
 
-   The rules defined in Section 5 of [RFC7959] are to be followed.
-
-7.  IANA Considerations
-
-      Editorial Note: Please update TBA1/TBA2 statements within the
-      document with the assigned codes.
-
-
-
-
-
 
 
 
@@ -169,6 +169,13 @@ Boucadair & Shallow     Expires October 12, 2020                [Page 3]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
+
+   The rules defined in Section 5 of [RFC7959] are to be followed.
+
+7.  IANA Considerations
+
+      Editorial Note: Please update TBA1/TBA2 statements within the
+      document with the assigned codes.
 
 7.1.  CoAP Option Numbers
 
@@ -212,19 +219,17 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
               RFC 7230, DOI 10.17487/RFC7230, June 2014,
               <https://www.rfc-editor.org/info/rfc7230>.
 
-   [RFC7252]  Shelby, Z., Hartke, K., and C. Bormann, "The Constrained
-              Application Protocol (CoAP)", RFC 7252,
-              DOI 10.17487/RFC7252, June 2014,
-              <https://www.rfc-editor.org/info/rfc7252>.
-
-
-
 
 
 Boucadair & Shallow     Expires October 12, 2020                [Page 4]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
+
+   [RFC7252]  Shelby, Z., Hartke, K., and C. Bormann, "The Constrained
+              Application Protocol (CoAP)", RFC 7252,
+              DOI 10.17487/RFC7252, June 2014,
+              <https://www.rfc-editor.org/info/rfc7252>.
 
    [RFC7641]  Hartke, K., "Observing Resources in the Constrained
               Application Protocol (CoAP)", RFC 7641,
@@ -270,6 +275,13 @@ Authors' Addresses
    Email: mohamed.boucadair@orange.com
 
 
+
+
+Boucadair & Shallow     Expires October 12, 2020                [Page 5]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
+
    Jon Shallow
    United Kingdom
 
@@ -277,4 +289,48 @@ Authors' Addresses
 
 
 
-Boucadair & Shallow     Expires October 12, 2020                [Page 5]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Boucadair & Shallow     Expires October 12, 2020                [Page 6]
