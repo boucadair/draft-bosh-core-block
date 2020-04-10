@@ -5,7 +5,7 @@
 CORE                                                        M. Boucadair
 Internet-Draft                                                    Orange
 Intended status: Standards Track                              J. Shallow
-Expires: October 11, 2020                                  April 9, 2020
+Expires: October 12, 2020                                 April 10, 2020
 
 
 New Constrained Application Protocol (CoAP) Block-Wise Transfer Options
@@ -13,7 +13,9 @@ New Constrained Application Protocol (CoAP) Block-Wise Transfer Options
 
 Abstract
 
-   wwww.
+   This document specifies new Constrained Application Protocol (CoAP)
+   Block-Wiset transfer options that are meant to accommodate scenarios
+   not initially covered by RFC 7959.
 
 Status of This Memo
 
@@ -30,7 +32,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on October 11, 2020.
+   This Internet-Draft will expire on October 12, 2020.
 
 Copyright Notice
 
@@ -51,9 +53,7 @@ Copyright Notice
 
 
 
-
-
-Boucadair & Shallow     Expires October 11, 2020                [Page 1]
+Boucadair & Shallow     Expires October 12, 2020                [Page 1]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Boucadair & Shallow     Expires October 11, 2020                [Page 2]
+Boucadair & Shallow     Expires October 12, 2020                [Page 2]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
@@ -165,7 +165,7 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
 
 
-Boucadair & Shallow     Expires October 11, 2020                [Page 3]
+Boucadair & Shallow     Expires October 12, 2020                [Page 3]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
@@ -221,7 +221,7 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
 
 
-Boucadair & Shallow     Expires October 11, 2020                [Page 4]
+Boucadair & Shallow     Expires October 12, 2020                [Page 4]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
@@ -277,4 +277,4 @@ Authors' Addresses
 
 
 
-Boucadair & Shallow     Expires October 11, 2020                [Page 5]
+Boucadair & Shallow     Expires October 12, 2020                [Page 5]

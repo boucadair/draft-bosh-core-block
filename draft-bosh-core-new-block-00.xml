@@ -88,7 +88,9 @@
     <keyword>dynamic mitigation</keyword>
 
     <abstract>
-      <t>wwww.</t>
+      <t>This document specifies new Constrained Application Protocol (CoAP)
+      Block-Wiset transfer options that are meant to accommodate scenarios not
+      initially covered by RFC 7959.</t>
     </abstract>
   </front>
 
