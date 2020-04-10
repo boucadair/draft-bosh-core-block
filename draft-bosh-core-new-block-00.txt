@@ -63,17 +63,20 @@ Table of Contents
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   2
    3.  The Block3 and Block4 Options . . . . . . . . . . . . . . . .   2
+     3.1.  Usage of Block3 . . . . . . . . . . . . . . . . . . . . .   3
+     3.2.  Usage of Block4 . . . . . . . . . . . . . . . . . . . . .   3
+     3.3.  Combined Usage of Block3 and Block4 Options . . . . . . .   3
    4.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . .   3
    5.  Caching Considerations  . . . . . . . . . . . . . . . . . . .   3
-   6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .   3
+   6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .   4
    7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
      7.1.  CoAP Option Numbers . . . . . . . . . . . . . . . . . . .   4
    8.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
    9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   4
    10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   4
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .   4
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .   5
      10.2.  Informative References . . . . . . . . . . . . . . . . .   5
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   5
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   6
 
 1.  Introduction
 
@@ -103,9 +106,6 @@ Table of Contents
    (Section 5.10).  The C, U, N, and R columns indicate the properties
    Critical, Unsafe, NoCacheKey, and Repeatable defined in Section 5.4
    of [RFC7252].  Since NoCacheKey only has a meaning for options that
-   are Safe-to-Forward, the N column is filled with a dash for Block3 ad
-   Block4 options.
-
 
 
 
@@ -113,6 +113,9 @@ Boucadair & Shallow     Expires October 12, 2020                [Page 2]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
+
+   are Safe-to-Forward, the N column is filled with a dash for Block3 ad
+   Block4 options.
 
     +--------+---+---+---+---+-----------+--------+--------+---------+
     | Number | C | U | N | R | Name      | Format | Length | Default |
@@ -124,7 +127,8 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
                Table 1: CoAP Block3 ad Block4 Option Properties
 
    The Block3 Option pertains to the request payload, and the Block4
-   Option pertains to the response payload.
+   Option pertains to the response payload.  The Content-Format Option
+   applies to the body, not to the payload.
 
    Both Block3 and Block4 options are not repeatable.  Therefore, any
    request carrying multiple Block3 (or Block4) options MUST be handled
@@ -135,7 +139,11 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
    The Block3 ad Block4 options are not safe to forward.
 
-   TBC.
+3.1.  Usage of Block3
+
+3.2.  Usage of Block4
+
+3.3.  Combined Usage of Block3 and Block4 Options
 
 4.  Examples
 
@@ -154,14 +162,6 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    proxy MUST update the GET request to list only missing blocks, and
    then forward the request to the next hop.
 
-6.  HTTP-Mapping Considerations
-
-   This section focuses on the HTTP mappings specific to the CoAP
-   extension specified in this document.  As a reminder, the basic
-   normative requirements on HTTP/CoAP mappings are defined in
-   Section 10 of [RFC7252].  The implementation guidelines for HTTP/CoAP
-   mappings are elaborated in [RFC8075].
-
 
 
 
@@ -169,6 +169,14 @@ Boucadair & Shallow     Expires October 12, 2020                [Page 3]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
+
+6.  HTTP-Mapping Considerations
+
+   This section focuses on the HTTP mappings specific to the CoAP
+   extension specified in this document.  As a reminder, the basic
+   normative requirements on HTTP/CoAP mappings are defined in
+   Section 10 of [RFC7252].  The implementation guidelines for HTTP/CoAP
+   mappings are elaborated in [RFC8075].
 
    The rules defined in Section 5 of [RFC7959] are to be followed.
 
@@ -207,6 +215,17 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
 10.  References
 
+
+
+
+
+
+
+Boucadair & Shallow     Expires October 12, 2020                [Page 4]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
+
 10.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -218,13 +237,6 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
               Protocol (HTTP/1.1): Message Syntax and Routing",
               RFC 7230, DOI 10.17487/RFC7230, June 2014,
               <https://www.rfc-editor.org/info/rfc7230>.
-
-
-
-Boucadair & Shallow     Expires October 12, 2020                [Page 4]
-
-Internet-Draft       New Block-Wise Transfer Options          April 2020
-
 
    [RFC7252]  Shelby, Z., Hartke, K., and C. Bormann, "The Constrained
               Application Protocol (CoAP)", RFC 7252,
@@ -260,6 +272,16 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
               ietf-dots-signal-channel-41 (work in progress), January
               2020.
 
+
+
+
+
+
+Boucadair & Shallow     Expires October 12, 2020                [Page 5]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
+
    [RFC8586]  Ludin, S., Nottingham, M., and N. Sullivan, "Loop
               Detection in Content Delivery Networks (CDNs)", RFC 8586,
               DOI 10.17487/RFC8586, April 2019,
@@ -275,32 +297,10 @@ Authors' Addresses
    Email: mohamed.boucadair@orange.com
 
 
-
-
-Boucadair & Shallow     Expires October 12, 2020                [Page 5]
-
-Internet-Draft       New Block-Wise Transfer Options          April 2020
-
-
    Jon Shallow
    United Kingdom
 
    Email: supjps-ietf@jpshallow.com
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

@@ -118,7 +118,7 @@
       target="RFC7959"></xref>. The term "payload" is thus used for the actual
       content of a single CoAP message (i.e., a single block being
       transferred), while the term "body" is used for the entire resource
-      representation that is being transferred in a block-wise fashion.</t>
+      representation that is being transferred in a block-wise fashion. </t>
     </section>
 
     <section anchor="spec" title="The Block3 and Block4 Options">
@@ -142,7 +142,8 @@
         </figure></t>
 
       <t>The Block3 Option pertains to the request payload, and the Block4
-      Option pertains to the response payload.</t>
+      Option pertains to the response payload. The Content-Format Option
+      applies to the body, not to the payload.</t>
 
       <t>Both Block3 and Block4 options are not repeatable. Therefore, any
       request carrying multiple Block3 (or Block4) options MUST be handled
@@ -154,7 +155,17 @@
 
       <t>The Block3 ad Block4 options are not safe to forward. </t>
 
-      <t>TBC.</t>
+      <section title="Usage of Block3">
+        <t></t>
+      </section>
+
+      <section title="Usage of Block4">
+        <t></t>
+      </section>
+
+      <section title="Combined Usage of Block3 and Block4 Options">
+        <t></t>
+      </section>
     </section>
 
     <section title="Examples">
