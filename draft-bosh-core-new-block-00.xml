@@ -96,7 +96,9 @@
 
   <middle>
     <section anchor="introduction" title="Introduction">
-      <t>xxx</t>
+      <t></t>
+
+      <t></t>
 
       <t>Only the deviation from Block1 and Block2 options will be
       specified.</t>
@@ -192,17 +194,19 @@
 Table 3: CoAP Block3 ad Block4 Option Numbers]]></artwork>
           </figure></t>
 
-        <t>This document suggests XXX and XXX as a values to be assigned for
-        the new option numbers.</t>
+        <t>This document suggests XX and XX as a values to be assigned for the
+        new option numbers.</t>
       </section>
     </section>
 
     <section anchor="security" title="Security Considerations">
-      <t>TBC.</t>
+      <t>Security considerations discussed in Section 9 of <xref
+      target="RFC7959"></xref> should be taken into account. </t>
     </section>
 
     <section anchor="ack" title="Acknowledgements">
-      <t>Thanks to Carsten Bormann, XXX for the comments.</t>
+      <t>Thanks to Achim Kraus, Christian Ams&uuml;ss, Carsten Bormann, Jim
+      Schaad for the comments on the mailing list.</t>
     </section>
   </middle>
 

@@ -77,8 +77,6 @@ Table of Contents
 
 1.  Introduction
 
-   xxx
-
    Only the deviation from Block1 and Block2 options will be specified.
 
 2.  Terminology
@@ -101,6 +99,8 @@ Table of Contents
    of [RFC7252].  Since NoCacheKey only has a meaning for options that
    are Safe-to-Forward, the N column is filled with a dash for Block3 ad
    Block4 options.
+
+
 
 
 
@@ -185,16 +185,18 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
                Table 3: CoAP Block3 ad Block4 Option Numbers
 
-   This document suggests XXX and XXX as a values to be assigned for the
+   This document suggests XX and XX as a values to be assigned for the
    new option numbers.
 
 8.  Security Considerations
 
-   TBC.
+   Security considerations discussed in Section 9 of [RFC7959] should be
+   taken into account.
 
 9.  Acknowledgements
 
-   Thanks to Carsten Bormann, XXX for the comments.
+   Thanks to Achim Kraus, Christian Amsuess, Carsten Bormann, Jim Schaad
+   for the comments on the mailing list.
 
 10.  References
 
@@ -214,8 +216,6 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
               Application Protocol (CoAP)", RFC 7252,
               DOI 10.17487/RFC7252, June 2014,
               <https://www.rfc-editor.org/info/rfc7252>.
-
-
 
 
 
