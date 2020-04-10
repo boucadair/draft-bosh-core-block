@@ -61,26 +61,114 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   2
-   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   2
-   3.  The Block3 and Block4 Options . . . . . . . . . . . . . . . .   2
-     3.1.  Usage of Block3 . . . . . . . . . . . . . . . . . . . . .   3
-     3.2.  Usage of Block4 . . . . . . . . . . . . . . . . . . . . .   3
-     3.3.  Combined Usage of Block3 and Block4 Options . . . . . . .   3
-   4.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . .   3
-   5.  Caching Considerations  . . . . . . . . . . . . . . . . . . .   3
-   6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .   4
-   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   4
-     7.1.  CoAP Option Numbers . . . . . . . . . . . . . . . . . . .   4
-   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   4
-   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   4
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   4
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .   5
-     10.2.  Informative References . . . . . . . . . . . . . . . . .   5
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   6
+     1.1.  Block-Wise Transfer Options: Overview . . . . . . . . . .   2
+     1.2.  Some Complications: The DOTS Example  . . . . . . . . . .   2
+     1.3.  New Block-Wise Transfer Options . . . . . . . . . . . . .   3
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   4
+   3.  The Block3 and Block4 Options . . . . . . . . . . . . . . . .   4
+     3.1.  Usage of Block3 . . . . . . . . . . . . . . . . . . . . .   5
+     3.2.  Usage of Block4 . . . . . . . . . . . . . . . . . . . . .   5
+     3.3.  Combined Usage of Block3 and Block4 Options . . . . . . .   5
+   4.  Examples  . . . . . . . . . . . . . . . . . . . . . . . . . .   5
+   5.  Caching Considerations  . . . . . . . . . . . . . . . . . . .   5
+   6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .   5
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .   5
+     7.1.  CoAP Option Numbers . . . . . . . . . . . . . . . . . . .   5
+   8.  Security Considerations . . . . . . . . . . . . . . . . . . .   6
+   9.  Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .   6
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .   6
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .   6
+     10.2.  Informative References . . . . . . . . . . . . . . . . .   7
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .   7
 
 1.  Introduction
 
+1.1.  Block-Wise Transfer Options: Overview
+
+1.2.  Some Complications: The DOTS Example
+
+   <<<<provide the example DOTS case ++++ Pasting the initail text from
+   Jon. We need to elaborte further with the examples that you shared on
+   the list>>>
+
+   <<<list>>>
+
+   o  (1) The use of nonblock2 option with a "relax" of the behavior at
+      the server to send the fragments with the same token and without
+      waiting for GETs.
+
+   o  (2) The use of a shim application as you suggested, which requires
+      an update on the server side but also on how clients on how to
+      fill the gaps (use of PUT/FETCH).
+
+   o  (3) A DOTS specific approach to build its own chunks and signal
+      blocks as part of the CBOR.  These blocks are handled as atomic
+      notifications.  If a block is missing, the client can use
+      GET+Query to retrieve the gap.  We don't require any modification
+      at the base CoAP specs.  The issue with this one is to decide what
+
+
+
+Boucadair & Shallow     Expires October 12, 2020                [Page 2]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
+
+      data to put in the blocks to avoid that when a block is passed to
+      other layers, the overheads won't lead to fragmentation.
+
+   ====
+
+   These status responses are sent back using CoAP NON-Confirmable
+   packets - in other words the DOTS client does not have to acknowledge
+   receipt of the packet which works in an environment where there is
+   heavy packet loss in the same direction as the status packet - the
+   DOTS server is not waiting on acknowledgement of the previous status
+   packet before sending out the next one (which too may get dropped).
+
+   For the status data that is larger than an IP packet, this can
+   currently be handled in two ways:
+
+   1.  Let IP fragmentation be used by sending large data that is
+       fragmented across several IP packets.
+
+   2.  Make use of the CoAP BLOCK2 option (RFC9759) to create CoAP
+       fragmentation.
+
+   The disadvantage of (1) is that the receiving CoAP library has to
+   have a large enough receive data buffer size to handle both the
+   encrypted and then plaintext data.  The libcoap library has the
+   default receive buffer sized for that of an IP packet that is not
+   fragmented.  This buffer can be made bigger, but how big?  What if
+   the DOTS client is a constrained device with RAM etc.  There is also
+   a challenge of managing missing IP fragmented packets which is
+   primarily done by the network stack.
+
+   The disadvantage of (2) is that BLOCK2 is a synchronous transmission
+   where the DOTS client receives a block of data and then has to
+   request the next block of data.  With a lossy network, if the client
+   does not see a block of data then this status data transmission will
+   stall and not recover leaving the DOTS server with outstanding data
+   that cannot be transmitted and hence the need for garbage collection
+   of failed transmissions.  Furthermore with (2), RFC9759 recommends
+   use of CONfirmable responses to handle potential packet loss - which
+   does not work with a flooded pipe DDoS situation.
+
+1.3.  New Block-Wise Transfer Options
+
+   TBC.
+
    Only the deviation from Block1 and Block2 options will be specified.
+
+
+
+
+
+
+Boucadair & Shallow     Expires October 12, 2020                [Page 3]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
 
 2.  Terminology
 
@@ -106,14 +194,6 @@ Table of Contents
    (Section 5.10).  The C, U, N, and R columns indicate the properties
    Critical, Unsafe, NoCacheKey, and Repeatable defined in Section 5.4
    of [RFC7252].  Since NoCacheKey only has a meaning for options that
-
-
-
-Boucadair & Shallow     Expires October 12, 2020                [Page 2]
-
-Internet-Draft       New Block-Wise Transfer Options          April 2020
-
-
    are Safe-to-Forward, the N column is filled with a dash for Block3 ad
    Block4 options.
 
@@ -139,6 +219,13 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
    The Block3 ad Block4 options are not safe to forward.
 
+
+
+Boucadair & Shallow     Expires October 12, 2020                [Page 4]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
+
 3.1.  Usage of Block3
 
 3.2.  Usage of Block4
@@ -162,14 +249,6 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    proxy MUST update the GET request to list only missing blocks, and
    then forward the request to the next hop.
 
-
-
-
-Boucadair & Shallow     Expires October 12, 2020                [Page 3]
-
-Internet-Draft       New Block-Wise Transfer Options          April 2020
-
-
 6.  HTTP-Mapping Considerations
 
    This section focuses on the HTTP mappings specific to the CoAP
@@ -190,6 +269,18 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    IANA is requested to add the following entry to the "CoAP Option
    Numbers" sub-registry available at https://www.iana.org/assignments/
    core-parameters/core-parameters.xhtml#option-numbers:
+
+
+
+
+
+
+
+
+Boucadair & Shallow     Expires October 12, 2020                [Page 5]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
 
                +--------+------------------+-----------+
                | Number | Name             | Reference |
@@ -215,17 +306,6 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
 10.  References
 
-
-
-
-
-
-
-Boucadair & Shallow     Expires October 12, 2020                [Page 4]
-
-Internet-Draft       New Block-Wise Transfer Options          April 2020
-
-
 10.1.  Normative References
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
@@ -248,6 +328,16 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
               DOI 10.17487/RFC7641, September 2015,
               <https://www.rfc-editor.org/info/rfc7641>.
 
+
+
+
+
+
+Boucadair & Shallow     Expires October 12, 2020                [Page 6]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
+
    [RFC7959]  Bormann, C. and Z. Shelby, Ed., "Block-Wise Transfers in
               the Constrained Application Protocol (CoAP)", RFC 7959,
               DOI 10.17487/RFC7959, August 2016,
@@ -265,22 +355,11 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
 10.2.  Informative References
 
-   [I-D.ietf-dots-signal-channel]
-              Reddy.K, T., Boucadair, M., Patil, P., Mortensen, A., and
-              N. Teague, "Distributed Denial-of-Service Open Threat
-              Signaling (DOTS) Signal Channel Specification", draft-
-              ietf-dots-signal-channel-41 (work in progress), January
-              2020.
-
-
-
-
-
-
-Boucadair & Shallow     Expires October 12, 2020                [Page 5]
-
-Internet-Draft       New Block-Wise Transfer Options          April 2020
-
+   [I-D.ietf-dots-telemetry]
+              Boucadair, M., Reddy.K, T., Doron, E., and c. chenmeiling,
+              "Distributed Denial-of-Service Open Threat Signaling
+              (DOTS) Telemetry", draft-ietf-dots-telemetry-06 (work in
+              progress), April 2020.
 
    [RFC8586]  Ludin, S., Nottingham, M., and N. Sullivan, "Loop
               Detection in Content Delivery Networks (CDNs)", RFC 8586,
@@ -310,27 +389,4 @@ Authors' Addresses
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Boucadair & Shallow     Expires October 12, 2020                [Page 6]
+Boucadair & Shallow     Expires October 12, 2020                [Page 7]

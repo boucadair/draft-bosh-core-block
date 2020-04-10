@@ -98,10 +98,80 @@
     <section anchor="introduction" title="Introduction">
       <t></t>
 
-      <t></t>
+      <section title="Block-Wise Transfer Options: Overview">
+        <t></t>
+      </section>
 
-      <t>Only the deviation from Block1 and Block2 options will be
-      specified.</t>
+      <section title="Some Complications: The DOTS Example">
+        <t>&lt;&lt;&lt;&lt;provide the example DOTS case ++++ Pasting the
+        initail text from Jon. We need to elaborte further with the examples
+        that you shared on the list&gt;&gt;&gt;</t>
+
+        <t>&lt;&lt;&lt;list&gt;&gt;&gt;</t>
+
+        <t><list style="symbols">
+            <t>(1) The use of nonblock2 option with a "relax" of the behavior
+            at the server to send the fragments with the same token and
+            without waiting for GETs. </t>
+
+            <t>(2) The use of a shim application as you suggested, which
+            requires an update on the server side but also on how clients on
+            how to fill the gaps (use of PUT/FETCH). </t>
+
+            <t>(3) A DOTS specific approach to build its own chunks and signal
+            blocks as part of the CBOR. These blocks are handled as atomic
+            notifications. If a block is missing, the client can use GET+Query
+            to retrieve the gap. We don't require any modification at the base
+            CoAP specs. The issue with this one is to decide what data to put
+            in the blocks to avoid that when a block is passed to other
+            layers, the overheads won't lead to fragmentation. </t>
+          </list></t>
+
+        <t>====</t>
+
+        <t>These status responses are sent back using CoAP NON-Confirmable
+        packets - in other words the DOTS client does not have to acknowledge
+        receipt of the packet which works in an environment where there is
+        heavy packet loss in the same direction as the status packet - the
+        DOTS server is not waiting on acknowledgement of the previous status
+        packet before sending out the next one (which too may get
+        dropped).</t>
+
+        <t>For the status data that is larger than an IP packet, this can
+        currently be handled in two ways:<list style="numbers">
+            <t>Let IP fragmentation be used by sending large data that is
+            fragmented across several IP packets.</t>
+
+            <t>Make use of the CoAP BLOCK2 option (RFC9759) to create CoAP
+            fragmentation.</t>
+          </list> </t>
+
+        <t>The disadvantage of (1) is that the receiving CoAP library has to
+        have a large enough receive data buffer size to handle both the
+        encrypted and then plaintext data. The libcoap library has the default
+        receive buffer sized for that of an IP packet that is not fragmented.
+        This buffer can be made bigger, but how big? What if the DOTS client
+        is a constrained device with RAM etc. There is also a challenge of
+        managing missing IP fragmented packets which is primarily done by the
+        network stack. </t>
+
+        <t>The disadvantage of (2) is that BLOCK2 is a synchronous
+        transmission where the DOTS client receives a block of data and then
+        has to request the next block of data. With a lossy network, if the
+        client does not see a block of data then this status data transmission
+        will stall and not recover leaving the DOTS server with outstanding
+        data that cannot be transmitted and hence the need for garbage
+        collection of failed transmissions. Furthermore with (2), RFC9759
+        recommends use of CONfirmable responses to handle potential packet
+        loss - which does not work with a flooded pipe DDoS situation. </t>
+      </section>
+
+      <section title="New Block-Wise Transfer Options">
+        <t>TBC.</t>
+
+        <t>Only the deviation from Block1 and Block2 options will be
+        specified.</t>
+      </section>
     </section>
 
     <section anchor="notation" title="Terminology">
@@ -254,7 +324,7 @@ Table 3: CoAP Block3 ad Block4 Option Numbers]]></artwork>
     </references>
 
     <references title="Informative References">
-      <?rfc include="reference.I-D.ietf-dots-signal-channel"?>
+      <?rfc include="reference.I-D.ietf-dots-telemetry"?>
 
       <?rfc include='reference.RFC.8586'?>
     </references>
