@@ -121,9 +121,9 @@
         attack and there is a need for DDoS mitigation agents need to
         communicate with each other (e.g., <xref
         target="I-D.ietf-dots-telemetry"></xref>). As a reminder, <xref
-        target="RFC7959"></xref> recommends use of Confirmable responses to
-        handle potential packet loss; which does not work with a flooded pipe
-        DDoS situation. </t>
+        target="RFC7959"></xref> recommends use of Confirmable (CON) responses
+        to handle potential packet loss; which does not work with a flooded
+        pipe DDoS situation. </t>
       </section>
 
       <section title="New Block-Wise Transfer Options">
@@ -139,7 +139,7 @@
         is faster in that multiple missing Blocks can be requested in a single
         packet.</t>
 
-        <t>Non-Confirmable request usage of Block3 and Non-Confirmable
+        <t>Non-Confirmable (NON) request usage of Block3 and Non-Confirmable
         response usage of Block4 enable the faster transmissions of the blocks
         of the body message as there is no need to wait for the responses.
         Note that the same performance benefits can be applied to Confirmable
@@ -536,7 +536,7 @@
       <section title="Block4 Option: Non-Confirmable Example">
         <t><xref target="nonb4"></xref> illustrates the example of Block4
         option. The client sends a NON GET carrying an Observe and a Block4
-        opiotns. The Block4 option indciates a size hint (1024 bytes). This
+        options. The Block4 option indciates a size hint (1024 bytes). This
         request is replied by the serer using four (4) blocks that are
         transmitetted to the client without any loss. Each of these blocks
         carries a Block4 option. The same process is repeated when an Observe

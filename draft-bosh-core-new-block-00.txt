@@ -122,9 +122,9 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    such as when a network is subject to a Distributed Denial Of Service
    (DDoS) attack and there is a need for DDoS mitigation agents need to
    communicate with each other (e.g., [I-D.ietf-dots-telemetry]).  As a
-   reminder, [RFC7959] recommends use of Confirmable responses to handle
-   potential packet loss; which does not work with a flooded pipe DDoS
-   situation.
+   reminder, [RFC7959] recommends use of Confirmable (CON) responses to
+   handle potential packet loss; which does not work with a flooded pipe
+   DDoS situation.
 
 1.2.  New Block-Wise Transfer Options
 
@@ -140,13 +140,13 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    Blocks is faster in that multiple missing Blocks can be requested in
    a single packet.
 
-   Non-Confirmable request usage of Block3 and Non-Confirmable response
-   usage of Block4 enable the faster transmissions of the blocks of the
-   body message as there is no need to wait for the responses.  Note
-   that the same performance benefits can be applied to Confirmable
-   messages if the value of NSTART is increased from 1 (Section 4.7 of
-   [RFC7252]).  Some sample examples with Confirmable messages are
-   provided in Appendix A.
+   Non-Confirmable (NON) request usage of Block3 and Non-Confirmable
+   response usage of Block4 enable the faster transmissions of the
+   blocks of the body message as there is no need to wait for the
+   responses.  Note that the same performance benefits can be applied to
+   Confirmable messages if the value of NSTART is increased from 1
+   (Section 4.7 of [RFC7252]).  Some sample examples with Confirmable
+   messages are provided in Appendix A.
 
    A CoAP endpoint can acknowledge all or a subset of the blocks.
    Concretely, the receiving CoAP endpoint informs the CoAP endpoint
@@ -589,7 +589,7 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 6.2.  Block4 Option: Non-Confirmable Example
 
    Figure 5 illustrates the example of Block4 option.  The client sends
-   a NON GET carrying an Observe and a Block4 opiotns.  The Block4
+   a NON GET carrying an Observe and a Block4 options.  The Block4
    option indciates a size hint (1024 bytes).  This request is replied
    by the serer using four (4) blocks that are transmitetted to the
    client without any loss.  Each of these blocks carries a Block4
