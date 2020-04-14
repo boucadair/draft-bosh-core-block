@@ -237,6 +237,11 @@
         request carrying multiple Block3 (or Block4) options MUST be handled
         following the procedure specified in Section 5.4.5 of <xref
         target="RFC7252"></xref>.</t>
+
+        <t>PROBING_RATE parameter in CoAP indicates the average data rate that
+        must not be exceeded by a CoAP endpoint in sending to a peer endpoint
+        that does not respond. The body of blocks will be subjected to probing
+        rate. </t>
       </section>
 
       <section title="Structure of Block3 and Block4 Options">
@@ -335,8 +340,8 @@
             re-transmitted. <vspace blankLines="1" />This value MUST be
             different for distinct sets of blocks of data and SHOULD be
             incremented whenever a new body of data is being transmitted for a
-            CoAP session between peers. Alternate algorithms to generate the
-            BID are discussed in <xref target="RFC7739"></xref>.</t>
+            CoAP session between peers. The initial BID value SHOULD be
+            randomly generated.</t>
 
             <t hangText="NUM: ">Block Number, indicating the block number
             being requested or provided. Block number '0' indicates the first
@@ -413,8 +418,8 @@
       target="RFC7252"></xref> for caching. </t>
 
       <t>This specification does not require a proxy to obtain the complete
-      representation before it serves parts of it to. Otherwise, the
-      considerations discussed in Section 2.10 of <xref
+      representation before it serves parts of it to the client. Otherwise,
+      the considerations discussed in Section 2.10 of <xref
       target="RFC7959"></xref> apply for the Block3 and Block4 options (with
       Block3 substituted for Block1 and Block4 substituted for Block2) for
       proxies that support Block3 and Block4 options.</t>
@@ -424,7 +429,12 @@
       can serve from its cache missing blocks that are available in its cache.
       If one more requested blocks are not available locally, the proxy MUST
       update the GET request with the blocks that it served locally, and then
-      forward the request to the next hop. </t>
+      forward the request to the next hop. When the proxy replies from its
+      local cache, it MUST use the same Token value as in the received
+      request. </t>
+
+      <t>How long a CoAP endpoint (or proxy) keeps the body in its cache is
+      implementation-specific (e.g., it may be based on Max-Age). </t>
     </section>
 
     <section title="HTTP-Mapping Considerations">
@@ -649,12 +659,10 @@ Table 2: CoAP Block3 and Block4 Option Numbers]]></artwork>
 
     <references title="Informative References">
       <?rfc include="reference.I-D.ietf-dots-telemetry"?>
-
-      <?rfc include='reference.RFC.7739'?>
     </references>
 
     <section anchor="CON" title="Examples with Confirmable Messages">
-      <t>This example assumes NSTART has been increased to at least 4.</t>
+      <t>These examples assume NSTART has been increased to at least 4.</t>
 
       <section title="Block3 Option">
         <t>Let's now consider the use Block3 option with a CON request as

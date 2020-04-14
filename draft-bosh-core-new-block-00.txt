@@ -73,10 +73,10 @@ Table of Contents
      3.3.  Working with Observe  . . . . . . . . . . . . . . . . . .   8
      3.4.  Working with Size1 and Size2 Options  . . . . . . . . . .   8
      3.5.  Working with Etag Option  . . . . . . . . . . . . . . . .   8
-   4.  Caching Considerations  . . . . . . . . . . . . . . . . . . .   8
+   4.  Caching Considerations  . . . . . . . . . . . . . . . . . . .   9
    5.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .   9
    6.  Examples of Selective Block Recovery  . . . . . . . . . . . .   9
-     6.1.  Block3 Option: Non-Confirmable Example  . . . . . . . . .   9
+     6.1.  Block3 Option: Non-Confirmable Example  . . . . . . . . .  10
      6.2.  Block4 Option: Non-Confirmable Example  . . . . . . . . .  11
    7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  13
    8.  Security Considerations . . . . . . . . . . . . . . . . . . .  14
@@ -86,7 +86,7 @@ Table of Contents
      10.2.  Informative References . . . . . . . . . . . . . . . . .  15
    Appendix A.  Examples with Confirmable Messages . . . . . . . . .  15
      A.1.  Block3 Option . . . . . . . . . . . . . . . . . . . . . .  15
-     A.2.  Block4 Option . . . . . . . . . . . . . . . . . . . . . .  17
+     A.2.  Block4 Option . . . . . . . . . . . . . . . . . . . . . .  16
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  18
 
 1.  Introduction
@@ -249,6 +249,11 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    request carrying multiple Block3 (or Block4) options MUST be handled
    following the procedure specified in Section 5.4.5 of [RFC7252].
 
+   PROBING_RATE parameter in CoAP indicates the average data rate that
+   must not be exceeded by a CoAP endpoint in sending to a peer endpoint
+   that does not respond.  The body of blocks will be subjected to
+   probing rate.
+
 3.2.  Structure of Block3 and Block4 Options
 
    The structure of Block3 and Block4 options follows the structure
@@ -270,17 +275,15 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    o  the relative number of the block (Block Number (NUM)) within a
       sequence of blocks with the given size,
 
-   o  whether this is acknowledging all the blocks successfully received
-      (A), and
-
-
-
 
 
 Boucadair & Shallow     Expires October 16, 2020                [Page 5]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
+
+   o  whether this is acknowledging all the blocks successfully received
+      (A), and
 
    o  the Block identifier number (BID) that is common to the sequence
       of blocks with the same given size.  The BID is different for each
@@ -326,9 +329,6 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
              Figure 1: Structure of Block3 and Block4 Options
 
-   The twenty-fourth least significant bit is the A-bit ("val &
-   0x1000000").
-
 
 
 
@@ -337,6 +337,9 @@ Boucadair & Shallow     Expires October 16, 2020                [Page 6]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
+
+   The twenty-fourth least significant bit is the A-bit ("val &
+   0x1000000").
 
    The option value shifted right by 25 ("(val >> 25)")(the BID field)
    is the Block identifier that identifies which sequence of blocks this
@@ -361,8 +364,8 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
       This value MUST be different for distinct sets of blocks of data
       and SHOULD be incremented whenever a new body of data is being
-      transmitted for a CoAP session between peers.  Alternate
-      algorithms to generate the BID are discussed in [RFC7739].
+      transmitted for a CoAP session between peers.  The initial BID
+      value SHOULD be randomly generated.
 
    NUM:   Block Number, indicating the block number being requested or
       provided.  Block number '0' indicates the first block of a body
@@ -383,9 +386,6 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
       unsigned integer indicating the size of a block to the power of
       two.  Thus, block size = 2**(SZX + 4).  The allowed values of SZX
       are 0 to 6, i.e., the minimum block size is 2**(0+4) = 16 and the
-      maximum is 2**(6+4) = 1024.  The value 7 for SZX (which would
-      indicate a block size of 2048) is used as a BERT option in
-      [RFC8323].
 
 
 
@@ -393,6 +393,10 @@ Boucadair & Shallow     Expires October 16, 2020                [Page 7]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
+
+      maximum is 2**(6+4) = 1024.  The value 7 for SZX (which would
+      indicate a block size of 2048) is used as a BERT option in
+      [RFC8323].
 
    There is no default value for the Block3 and Block4 options.  Absence
    of one of these options is equivalent to an option value of 0 with
@@ -434,12 +438,8 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    whole representation of the resource, and thus to the body of the
    response.
 
-4.  Caching Considerations
 
-   The Block3 and Block4 options are part of the cache key.  As such, a
-   CoAP proxy that does not understand the Block3 and Block4 options
-   must follow the recommendations in Section 5.7.1 of [RFC7252] for
-   caching.
+
 
 
 
@@ -450,19 +450,31 @@ Boucadair & Shallow     Expires October 16, 2020                [Page 8]
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
 
+4.  Caching Considerations
+
+   The Block3 and Block4 options are part of the cache key.  As such, a
+   CoAP proxy that does not understand the Block3 and Block4 options
+   must follow the recommendations in Section 5.7.1 of [RFC7252] for
+   caching.
+
    This specification does not require a proxy to obtain the complete
-   representation before it serves parts of it to.  Otherwise, the
-   considerations discussed in Section 2.10 of [RFC7959] apply for the
-   Block3 and Block4 options (with Block3 substituted for Block1 and
-   Block4 substituted for Block2) for proxies that support Block3 and
-   Block4 options.
+   representation before it serves parts of it to the client.
+   Otherwise, the considerations discussed in Section 2.10 of [RFC7959]
+   apply for the Block3 and Block4 options (with Block3 substituted for
+   Block1 and Block4 substituted for Block2) for proxies that support
+   Block3 and Block4 options.
 
    A proxy that supports Block3 and Block4 options MUST be prepared to
    receive a GET message indicating one or more missing blocks.  The
    proxy can serve from its cache missing blocks that are available in
    its cache.  If one more requested blocks are not available locally,
    the proxy MUST update the GET request with the blocks that it served
-   locally, and then forward the request to the next hop.
+   locally, and then forward the request to the next hop.  When the
+   proxy replies from its local cache, it MUST use the same Token value
+   as in the received request.
+
+   How long a CoAP endpoint (or proxy) keeps the body in its cache is
+   implementation-specific (e.g., it may be based on Max-Age).
 
 5.  HTTP-Mapping Considerations
 
@@ -487,24 +499,18 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    [[]]: Comments
    ---X: Message loss
 
-6.1.  Block3 Option: Non-Confirmable Example
-
-   Figure 2 depicts an example of a NON PUT request conveying Block3
-   option.  All the blocks are received by the server; hence the A-bit
-   is set in the 2.05 message sent by the server to the client.
-
-
-
-
-
-
-
 
 
 Boucadair & Shallow     Expires October 16, 2020                [Page 9]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
+
+6.1.  Block3 Option: Non-Confirmable Example
+
+   Figure 2 depicts an example of a NON PUT request conveying Block3
+   option.  All the blocks are received by the server; hence the A-bit
+   is set in the 2.05 message sent by the server to the client.
 
            CoAP        CoAP
           Client      Server
@@ -537,12 +543,6 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    The server realizes that some blocks are missing and asks for the
    missing ones in one go (Figure 4).  It does so by indicating which
    blocks have been received.
-
-
-
-
-
-
 
 
 
@@ -809,38 +809,14 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
               (DOTS) Telemetry", draft-ietf-dots-telemetry-06 (work in
               progress), April 2020.
 
-   [RFC7739]  Gont, F., "Security Implications of Predictable Fragment
-              Identification Values", RFC 7739, DOI 10.17487/RFC7739,
-              February 2016, <https://www.rfc-editor.org/info/rfc7739>.
-
 Appendix A.  Examples with Confirmable Messages
 
-   This example assumes NSTART has been increased to at least 4.
+   These examples assume NSTART has been increased to at least 4.
 
 A.1.  Block3 Option
 
    Let's now consider the use Block3 option with a CON request as shown
    in Figure 7.  All the blocks are acknowledged (ACK).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Boucadair & Shallow     Expires October 16, 2020               [Page 15]
-
-Internet-Draft       New Block-Wise Transfer Options          April 2020
-
 
            CoAP        CoAP
           Client      Server
@@ -856,6 +832,15 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
 
 
     Figure 7: Example of CON Request with Block3 Option (Without Loss)
+
+
+
+
+
+Boucadair & Shallow     Expires October 16, 2020               [Page 15]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
 
    Now, suppose that a new body of data is to sent but with some blocks
    dropped in transmission as illustrated in Figure 8.  The client will
@@ -889,6 +874,21 @@ Internet-Draft       New Block-Wise Transfer Options          April 2020
    terminated following acknowledge retry timeout, or whether the CoAP
    session continues to be used under such adverse traffic conditions.
 
+   If there is likely to be the possibility of network transient losses,
+   then the use of Non-Confirmable traffic should be considered.
+
+A.2.  Block4 Option
+
+   An exmaple of the use of Block4 option with Confirmable messages is
+   shown in Figure 9.
+
+
+
+
+
+
+
+
 
 
 
@@ -897,14 +897,6 @@ Boucadair & Shallow     Expires October 16, 2020               [Page 16]
 
 Internet-Draft       New Block-Wise Transfer Options          April 2020
 
-
-   If there is likely to be the possibility of network transient losses,
-   then the use of Non-Confirmable traffic should be considered.
-
-A.2.  Block4 Option
-
-   An exmaple of the use of Block4 option with Confirmable messages is
-   shown in Figure 9.
 
           Client      Server
             |          |
@@ -947,19 +939,20 @@ A.2.  Block4 Option
 
          Figure 9: Example of CON Notifications with Block4 Option
 
-
-
-Boucadair & Shallow     Expires October 16, 2020               [Page 17]
-
-Internet-Draft       New Block-Wise Transfer Options          April 2020
-
-
    It is implementation-dependent as to whether a CoAP session is
    terminated following acknowledge retry timeout, or whether the CoAP
    session continues to be used under such adverse traffic conditions.
 
    If there is likely to be the possibility of network transient losses,
    then the use of Non-Confirmable traffic should be considered.
+
+
+
+
+Boucadair & Shallow     Expires October 16, 2020               [Page 17]
+
+Internet-Draft       New Block-Wise Transfer Options          April 2020
+
 
 Authors' Addresses
 
@@ -975,6 +968,13 @@ Authors' Addresses
    United Kingdom
 
    Email: supjps-ietf@jpshallow.com
+
+
+
+
+
+
+
 
 
 
