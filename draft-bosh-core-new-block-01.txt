@@ -76,14 +76,13 @@ Table of Contents
      3.4.  Using the Block 4 Option  . . . . . . . . . . . . . . . .  11
      3.5.  Working with Observe and Block4 Options . . . . . . . . .  12
      3.6.  Working with Size1 and Size2 Options  . . . . . . . . . .  12
-     3.7.  Streaming Support for the Block3 Option . . . . . . . . .  12
-     3.8.  Streaming Support for the Block4 Option . . . . . . . . .  13
-     3.9.  Working with Etag Option  . . . . . . . . . . . . . . . .  13
-     3.10. Use of Block3 and Block4 Options Together . . . . . . . .  13
+     3.7.  Streaming Support for the Block3 and Block4 Options . . .  12
+     3.8.  Working with Etag Option  . . . . . . . . . . . . . . . .  13
+     3.9.  Use of Block3 and Block4 Options Together . . . . . . . .  13
    4.  TBA3 (Missing Payloads) Response Code . . . . . . . . . . . .  13
    5.  Caching Considerations  . . . . . . . . . . . . . . . . . . .  14
    6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .  14
-   7.  Examples of Selective Block Recovery  . . . . . . . . . . . .  15
+   7.  Examples of Selective Block Recovery  . . . . . . . . . . . .  14
      7.1.  Block3 Option: Non-Confirmable Example  . . . . . . . . .  15
      7.2.  Block4 Option: Non-Confirmable Example  . . . . . . . . .  16
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  18
@@ -106,6 +105,7 @@ Table of Contents
    The Constrained Application Protocol (CoAP) [RFC7252], although
    inspired by HTTP, was designed to use UDP instead of TCP.  The
    message layer of CoAP over UDP includes support for reliable
+   delivery, simple congestion control, and flow control.  [RFC7959]
 
 
 
@@ -114,7 +114,6 @@ Boucadair & Shallow     Expires November 23, 2020               [Page 2]
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
-   delivery, simple congestion control, and flow control.  [RFC7959]
    introduced the CoAP Block1 and Block2 Options to handle data records
    that cannot fit in a single IP packet, so not having to rely on IP
    fragmentation.
@@ -161,6 +160,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    body that have been not yet been received.  The CoAP endpoint sender
    will then retransmit only the blocks that have been lost in
    transmission.
+
 
 
 
@@ -657,15 +657,15 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    If Size1 or Size2 Options are used, they MUST be used in all payloads
    of the body and MUST have the same value.
 
-3.7.  Streaming Support for the Block3 Option
+3.7.  Streaming Support for the Block3 and Block4 Options
 
    If the Size1 Option is not specified, there is support for streaming
-   data to the server by always setting the 'M' bit in the payload.
-   When the Block Number reaches the maximum(2^20 -1), it simply wraps
-   around to 0 and then continues to be incremented for each payload.
+   data to the server by always setting the 'M' bit in the payload.  The
+   server can still indicate missing blocks with the TBA3 (Missing
+   Payloads) Response Code but is NOT RECOMMENDED.
 
-   The server can still indicate missing blocks with the TBA3 (Missing
-   Payloads) Response Code but is NOT RECOMMENDED.  Use of MAX_PAYLOADS
+   Likewise, if the Size2 Option is not specified, there is support for
+   streaming data to the client by always setting the 'M' bit in the
 
 
 
@@ -674,21 +674,17 @@ Boucadair & Shallow     Expires November 23, 2020              [Page 12]
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
-   has still to be followed so that the network is not overloaded with
-   too much traffic.
+   payload.  The client can request missing blocks but is NOT
+   RECOMMENDED.
 
-3.8.  Streaming Support for the Block4 Option
+   When the Block Number (NUM) reaches the maximum(2^20 -1), it simply
+   wraps around to 0 and then continues to be incremented for each
+   payload.
 
-   If the Size2 Option is not specified, there is support for streaming
-   data to the client by always setting the 'M' bit in the payload.
-   When the Block Number reaches the maximum(2^20 -1), it simply wraps
-   around to 0 and then continues to be incremented for each payload.
+   As a reminder, the use of MAX_PAYLOADS has still to be followed so
+   that the network is not overloaded with too much traffic.
 
-   The client can request missing blocks but is NOT RECOMMENDED.  Use of
-   MAX_PAYLOADS has still to be followed so that the network is not
-   overloaded with too much traffic.
-
-3.9.  Working with Etag Option
+3.8.  Working with Etag Option
 
    The ETag Option defined in Section 5.10.6 of [RFC7252] applies to the
    whole representation of the resource, and thus to the body of the
@@ -703,7 +699,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    If ETag is used in the request, then Section 5.10.6.2 of [RFC7252]
    still applies.  As such, 2.03 (Valid) Response Code can be returned.
 
-3.10.  Use of Block3 and Block4 Options Together
+3.9.  Use of Block3 and Block4 Options Together
 
    The behavior is similar to the one defined in Section 3.3 of
    [RFC7959] with Block3 substituted for Block1 and Block4 for Block2.
@@ -722,6 +718,10 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    count of the missing block numbers followed by set of 1 or more
    missing block numbers encoded in CBOR format (0 unsigned) for
    compactness.  If the size of the TBA3 (Missing Payloads) response
+   packet is larger than that defined by Section 4.6 [RFC7252], then the
+   number of missing blocks MUST be limited so that the response can fit
+   into a single packet.  If necessary, multiple TBA3 (Missing Payloads)
+
 
 
 
@@ -730,9 +730,6 @@ Boucadair & Shallow     Expires November 23, 2020              [Page 13]
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
-   packet is larger than that defined by Section 4.6 [RFC7252], then the
-   number of missing blocks MUST be limited so that the response can fit
-   into a single packet.  If necessary, multiple TBA3 (Missing Payloads)
    Response Codes can be sent back; each covering a unique set of
    missing blocks.
 
@@ -776,8 +773,11 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
    The rules defined in Section 5 of [RFC7959] are to be followed.
 
+7.  Examples of Selective Block Recovery
 
-
+   This section provides some sample flows to illustrate the use of
+   Block3 and Block4 Options.  These conventions are used in the
+   following subsections:
 
 
 
@@ -785,12 +785,6 @@ Boucadair & Shallow     Expires November 23, 2020              [Page 14]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
-
-7.  Examples of Selective Block Recovery
-
-   This section provides some sample flows to illustrate the use of
-   Block3 and Block4 Options.  These conventions are used in the
-   following subsections:
 
       T: Token value
       O: Observe Option value
@@ -824,24 +818,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    client, but some blocks are dropped in transmission as illustrated in
    Figure 3.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-Boucadair & Shallow     Expires November 23, 2020              [Page 15]
-
-Internet-Draft       New Block-Wise Transfer Options            May 2020
-
-
            CoAP        CoAP
           Client      Server
             |          |
@@ -857,6 +833,14 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    The server realizes that some blocks are missing and asks for the
    missing ones in one go (Figure 4).  It does so by indicating which
    blocks have been received in the data portion of the response.
+
+
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 15]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
 
            CoAP        CoAP
           Client      Server
@@ -887,6 +871,22 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    without any loss.  Each of these blocks carries a Block4 Option.  The
    same process is repeated when an Observe is triggered, but no loss is
    experienced by any of the notification blocks.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

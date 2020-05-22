@@ -591,29 +591,23 @@
         payloads of the body and MUST have the same value.</t>
       </section>
 
-      <section title="Streaming Support for the Block3 Option">
+      <section title="Streaming Support for the Block3 and Block4 Options">
         <t>If the Size1 Option is not specified, there is support for
         streaming data to the server by always setting the 'M' bit in the
-        payload. When the Block Number reaches the maximum(2^20 -1), it simply
+        payload. The server can still indicate missing blocks with the TBA3
+        (Missing Payloads) Response Code but is NOT RECOMMENDED. </t>
+
+        <t>Likewise, if the Size2 Option is not specified, there is support
+        for streaming data to the client by always setting the 'M' bit in the
+        payload. The client can request missing blocks but is NOT RECOMMENDED.
+        </t>
+
+        <t>When the Block Number (NUM) reaches the maximum(2^20 -1), it simply
         wraps around to 0 and then continues to be incremented for each
         payload. </t>
 
-        <t>The server can still indicate missing blocks with the TBA3 (Missing
-        Payloads) Response Code but is NOT RECOMMENDED. Use of MAX_PAYLOADS
-        has still to be followed so that the network is not overloaded with
-        too much traffic.</t>
-      </section>
-
-      <section title="Streaming Support for the Block4 Option">
-        <t>If the Size2 Option is not specified, there is support for
-        streaming data to the client by always setting the 'M' bit in the
-        payload. When the Block Number reaches the maximum(2^20 -1), it simply
-        wraps around to 0 and then continues to be incremented for each
-        payload. </t>
-
-        <t>The client can request missing blocks but is NOT RECOMMENDED. Use
-        of MAX_PAYLOADS has still to be followed so that the network is not
-        overloaded with too much traffic.</t>
+        <t>As a reminder, the use of MAX_PAYLOADS has still to be followed so
+        that the network is not overloaded with too much traffic.</t>
       </section>
 
       <section title="Working with Etag Option">
