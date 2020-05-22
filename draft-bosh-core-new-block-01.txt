@@ -79,7 +79,7 @@ Table of Contents
      3.7.  Streaming Support for the Block3 and Block4 Options . . .  13
      3.8.  Working with Etag Option  . . . . . . . . . . . . . . . .  13
      3.9.  Use of Block3 and Block4 Options Together . . . . . . . .  13
-   4.  TBA3 (Missing Payloads) Response Code . . . . . . . . . . . .  13
+   4.  TBA3 (Missing Payloads) Response Code . . . . . . . . . . . .  14
    5.  Caching Considerations  . . . . . . . . . . . . . . . . . . .  14
    6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .  15
    7.  Examples of Selective Block Recovery  . . . . . . . . . . . .  15
@@ -142,7 +142,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    blocks of data with less packet interchanges as well as supporting
    faster recovery should any of the Blocks get lost in transmission.
 
-   Using Non-Confirmable (NON) messages, the faster transmissions occur
+   Using Non-confirmable (NON) messages, the faster transmissions occur
    as all the Blocks can be transmitted serially (as are IP fragmented
    packets) without having to wait for an acknowledgement or next
    request from the remote CoAP peer.  Recovery of missing Blocks is
@@ -182,7 +182,9 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
    This document defines a new Response Code, called TBA3 (Missing
    payloads), to report on payloads using the Block3 Option that are not
-   received by the server.  See Section 4 for more details.
+   received by the server.
+
+   See Section 4 for more details.
 
 1.4.  Applicability Scope
 
@@ -213,8 +215,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    (i.e., a single block being transferred), while the term "body" is
    used for the entire resource representation that is being transferred
    in a block-wise fashion.
-
-
 
 
 
@@ -421,13 +421,15 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
       missing blocks, then the BID is set to the value of the BID of the
       partially received body.
 
-   S:   Streaming bit.  See Section 3.7.
+   S:   Streaming bit.  This bit is set only if data is being streamed
+      as opposed to having a finite body size.  Usually this bit is
+      unset.  See Section 3.7 for further information on streaming.
 
    NUM:   Block Number, indicating the block number being requested or
       provided.  Block number '0' indicates the first block of a body
       (i.e., starting with the first byte of the body).
 
-   M:   More Flag ("not last block").  For descriptive usage, this flag,
+   M:   More bit ("not last block").  For descriptive usage, this bit,
       if unset, indicates that the payload in this message is the last
       block in the body; when set, it indicates that there are one or
       more additional blocks available.
@@ -440,8 +442,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
    SZX:   Block Size.  The block size is represented as a three-bit
       unsigned integer indicating the size of a block to the power of
-      two.  Thus, block size = 2**(SZX + 4).  The allowed values of SZX
-      are 0 to 6, i.e., the minimum block size is 2**(0+4) = 16 and the
 
 
 
@@ -450,22 +450,24 @@ Boucadair & Shallow     Expires November 23, 2020               [Page 8]
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
+      two.  Thus, block size = 2**(SZX + 4).  The allowed values of SZX
+      are 0 to 6, i.e., the minimum block size is 2**(0+4) = 16 and the
       maximum is 2**(6+4) = 1024.  The value 7 for SZX (which would
       indicate a block size of 2048) is used as a BERT Option in
       [RFC8323].
 
       There is no default value for the Block3 and Block4 Options.
       Absence of one of these options is equivalent to an option value
-      of 0 with respect to the value of NUM, M, and BID that could be
+      of 0 with respect to the value of NUM, M, S, and BID that could be
       given in the option, i.e., it indicates that the current block is
       the first and only block of the transfer (block number is set to
-      0, M-bit is unset, and BID is set to 0).  However, in contrast to
-      the explicit value 0, which would indicate an SZX of 0, and thus a
-      size value of 16 bytes, there is no specific explicit size implied
-      by the absence of the option -- the size is left unspecified.  (As
-      for any uint, the explicit value 0 is efficiently indicated by a
-      zero-length option; this, therefore, is different in semantics
-      from the absence of the option).
+      0, M and S bits are unset, and BID is set to 0).  However, in
+      contrast to the explicit value 0, which would indicate an SZX of
+      0, and thus a size value of 16 bytes, there is no specific
+      explicit size implied by the absence of the option -- the size is
+      left unspecified.  (As for any uint, the explicit value 0 is
+      efficiently indicated by a zero-length option; this, therefore, is
+      different in semantics from the absence of the option).
 
 3.3.  Using the Block3 Option
 
@@ -496,8 +498,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    MUST wait for the 2.01 (Created) or 2.04 (Changed) Response Codes to
    be returned for successful transmission, or TBA3 to then resend the
    missing blocks (if any).
-
-
 
 
 
@@ -538,9 +538,9 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
    A TBA3 (Missing Payloads) Response Code indicates that some of the
    payloads are missing and need to be resent.  The client then re-
-   transmits the missing payloads using Block3 to specify the BID, block
-   number, SZX, and 'M' bit unset.  As discussed above, the sending of
-   the list of missing blocks is subject to MAX_PAYLOAD.
+   transmits the missing payloads using Block3 to specify the BID, 'S'
+   bit, block number, SZX, and 'M' bit unset.  As discussed above, the
+   sending of the list of missing blocks is subject to MAX_PAYLOAD.
 
    If the server has not received the final payload (i.e., a block with
    'M' bit unset), but one or other payloads have been received, it
@@ -682,14 +682,20 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    If the Size1 Option is not specified, there is support for streaming
    data to the server by always setting the 'S' and 'M' bits in the
    payload.  The server can still indicate missing blocks with the TBA3
-   (Missing Payloads) Response Code but is NOT RECOMMENDED.
+   (Missing Payloads) Response Code but is NOT RECOMMENDED.  By
+   unsettling the 'M' bit, the client can indicate that this is the last
+   payload and hence the end of the streaming of data.
 
    Likewise, if the Size2 Option is not specified, there is support for
    streaming data to the client by always setting the 'S' and 'M' bits
    in the payload.  The client can request missing blocks but is NOT
-   RECOMMENDED.
+   RECOMMENDED.  The client needs to indicate to the server that it can
+   handle streamed data by setting the 'S' bit in the initial request.
+   If the client no longer wants to receive data, it can send a GET
+   request to the same resource with the same BID, but both 'M' and 'S'
+   bits unset.
 
-   When the Block Number (NUM) reaches the maximum(2^20 -1), it simply
+   When the Block Number (NUM) reaches the maximum(2**20 -1), it simply
    wraps around to 0 and then continues to be incremented for each
    payload.
 
@@ -716,12 +722,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    The behavior is similar to the one defined in Section 3.3 of
    [RFC7959] with Block3 substituted for Block1 and Block4 for Block2.
 
-4.  TBA3 (Missing Payloads) Response Code
-
-   TBA3 (Missing Payloads) Response Code is a new client error status
-   code used to indicate that the server has not received the blocks of
-   the request body that it needs to proceed.
-
 
 
 
@@ -729,6 +729,12 @@ Boucadair & Shallow     Expires November 23, 2020              [Page 13]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
+
+4.  TBA3 (Missing Payloads) Response Code
+
+   TBA3 (Missing Payloads) Response Code is a new client error status
+   code used to indicate that the server has not received the blocks of
+   the request body that it needs to proceed.
 
    Likely causes are the client has not sent all blocks, some blocks
    were dropped during transmission, or the client has sent them long
@@ -754,6 +760,8 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    must follow the recommendations in Section 5.7.1 of [RFC7252] for
    caching.
 
+   If the 'S' bit is set, the data SHOULD NOT be cached.
+
    This specification does not require a proxy to obtain the complete
    representation before it serves parts of it to the client.
    Otherwise, the considerations discussed in Section 2.10 of [RFC7959]
@@ -770,14 +778,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    then forward on the request, after modifying it to remove the missing
    block references it has in cache, to the next hop.  Alternatively,
    the original request unmodified (from the missing block perspective)
-   MAY be forwarded on to the server.  All the responses are then passed
-   back to the client with the cache getting updated.
-
-   How long a CoAP endpoint (or proxy) keeps the body in its cache is
-   implementation specific (e.g., it may be based on Max-Age).
-
-
-
 
 
 
@@ -785,6 +785,12 @@ Boucadair & Shallow     Expires November 23, 2020              [Page 14]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
+
+   MAY be forwarded on to the server.  All the responses are then passed
+   back to the client with the cache getting updated.
+
+   How long a CoAP endpoint (or proxy) keeps the body in its cache is
+   implementation specific (e.g., it may be based on Max-Age).
 
 6.  HTTP-Mapping Considerations
 
@@ -803,8 +809,8 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
       T: Token value
       O: Observe Option value
       M: Message ID
-     B3: Block3 Option values BID/NUM/More/SZX
-     B4: Block3 Option values BID/NUM/More/SZX
+     B3: Block3 Option values BID/S/NUM/More/SZX
+     B4: Block3 Option values BID/S/NUM/More/SZX
       \: Trimming long lines
    [[]]: Comments
    -->X: Message loss
@@ -819,20 +825,14 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
            CoAP        CoAP
           Client      Server
             |          |
-            +--------->| NON PUT /path M:0x01 T:0xf0 B3:10/0/1/1024
-            +--------->| NON PUT /path M:0x02 T:0xf1 B3:10/1/1/1024
-            +--------->| NON PUT /path M:0x03 T:0xf2 B3:10/2/1/1024
-            +--------->| NON PUT /path M:0x04 T:0xf3 B3:10/3/0/1024
+            +--------->| NON PUT /path M:0x01 T:0xf0 B3:10/0/0/1/1024
+            +--------->| NON PUT /path M:0x02 T:0xf1 B3:10/0/1/1/1024
+            +--------->| NON PUT /path M:0x03 T:0xf2 B3:10/0/2/1/1024
+            +--------->| NON PUT /path M:0x04 T:0xf3 B3:10/0/3/0/1024
             |<---------+ NON 2.04 M:0xf1 T:0xf3
                 ...
 
     Figure 2: Example of NON Request with Block3 Option (Without Loss)
-
-   Consider now a scenario where a new body of data is to be sent by the
-   client, but some blocks are dropped in transmission as illustrated in
-   Figure 3.
-
-
 
 
 
@@ -842,13 +842,17 @@ Boucadair & Shallow     Expires November 23, 2020              [Page 15]
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
+   Consider now a scenario where a new body of data is to be sent by the
+   client, but some blocks are dropped in transmission as illustrated in
+   Figure 3.
+
            CoAP        CoAP
           Client      Server
             |          |
-            +--------->| NON PUT /path M:0x05 T:0xe0 B3:11/0/1/1024
-            +--->X     | NON PUT /path M:0x06 T:0xe1 B3:11/1/1/1024
-            +--->X     | NON PUT /path M:0x07 T:0xe2 B3:11/2/1/1024
-            +--------->| NON PUT /path M:0x08 T:0xe3 B3:11/3/0/1024
+            +--------->| NON PUT /path M:0x05 T:0xe0 B3:11/0/0/1/1024
+            +--->X     | NON PUT /path M:0x06 T:0xe1 B3:11/0/1/1/1024
+            +--->X     | NON PUT /path M:0x07 T:0xe2 B3:11/0/2/1/1024
+            +--------->| NON PUT /path M:0x08 T:0xe3 B3:11/0/3/0/1024
             |          |
                 ...
 
@@ -863,11 +867,11 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
             |          |
                 ...
             |<---------+ NON TBA3 M:0xf2 T:0xe3 [Missing 1,2]
-            +--------->| NON PUT /path M:0x09 T:0xe4 B3:11/1/1/1024
-            +--->X     | NON PUT /path M:0x0a T:0xe5 B3:11/2/1/1024
+            +--------->| NON PUT /path M:0x09 T:0xe4 B3:11/0/1/1/1024
+            +--->X     | NON PUT /path M:0x0a T:0xe5 B3:11/0/2/1/1024
             |          |
             |<---------+ NON TBA3 M:0xf3 T:0xe4 [Missing 2]
-            +--------->| NON PUT /path M:0x0b T:0xe6 B3:11/2/1/1024
+            +--------->| NON PUT /path M:0x0b T:0xe6 B3:11/0/2/1/1024
             |<---------+ NON 2.04 M:0xf4 T:0xe6
             |          |
                 ...
@@ -885,10 +889,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    Option indicates a size hint (1024 bytes).  This request is replied
    by the serer using four (4) blocks that are transmitted to the client
    without any loss.  Each of these blocks carries a Block4 Option.  The
-   same process is repeated when an Observe is triggered, but no loss is
-   experienced by any of the notification blocks.
-
-
 
 
 
@@ -898,20 +898,23 @@ Boucadair & Shallow     Expires November 23, 2020              [Page 16]
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
+   same process is repeated when an Observe is triggered, but no loss is
+   experienced by any of the notification blocks.
+
            CoAP        CoAP
           Client      Server
             |          |
-            +--------->| NON GET /path M:0x01 T:0xf0 O:0 B4:0/0/0/1024
-            |<---------+ NON 2.05 M:0xf1 T:0xf0 O:1234 B4:21/0/1/1024
-            |<---------+ NON 2.05 M:0xf2 T:0xf0 O:1234 B4:21/1/1/1024
-            |<---------+ NON 2.05 M:0xf3 T:0xf0 O:1234 B4:21/2/1/1024
-            |<---------+ NON 2.05 M:0xf4 T:0xf0 O:1234 B4:21/3/0/1024
+            +--------->| NON GET /path M:0x01 T:0xf0 O:0 B4:0/0/0/0/1024
+            |<---------+ NON 2.05 M:0xf1 T:0xf0 O:1234 B4:21/0/0/1/1024
+            |<---------+ NON 2.05 M:0xf2 T:0xf0 O:1234 B4:21/0/1/1/1024
+            |<---------+ NON 2.05 M:0xf3 T:0xf0 O:1234 B4:21/0/2/1/1024
+            |<---------+ NON 2.05 M:0xf4 T:0xf0 O:1234 B4:21/0/3/0/1024
                  ...
               [[Observe triggered]]
-            |<---------+ NON 2.05 M:0xf5 T:0xf0 O:1235 B4:22/0/1/1024
-            |<---------+ NON 2.05 M:0xf6 T:0xf0 O:1235 B4:22/1/1/1024
-            |<---------+ NON 2.05 M:0xf7 T:0xf0 O:1235 B4:22/2/1/1024
-            |<---------+ NON 2.05 M:0xf8 T:0xf0 O:1235 B4:22/3/0/1024
+            |<---------+ NON 2.05 M:0xf5 T:0xf0 O:1235 B4:22/0/0/1/1024
+            |<---------+ NON 2.05 M:0xf6 T:0xf0 O:1235 B4:22/0/1/1/1024
+            |<---------+ NON 2.05 M:0xf7 T:0xf0 O:1235 B4:22/0/2/1/1024
+            |<---------+ NON 2.05 M:0xf8 T:0xf0 O:1235 B4:22/0/3/0/1024
                 ...
 
 
@@ -946,9 +949,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
 
-
-
-
 Boucadair & Shallow     Expires November 23, 2020              [Page 17]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
@@ -959,21 +959,21 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
             |          |
                 ...
                [[Observe triggered]]
-            |<---------+ NON 2.05 M:0xf9 T:0xf0 O:1236 B4:23/0/1/1024
-            |     X<---+ NON 2.05 M:0xfa T:0xf0 O:1236 B4:23/1/1/1024
-            |     X<---+ NON 2.05 M:0xfb T:0xf0 O:1236 B4:23/2/1/1024
-            |<---------+ NON 2.05 M:0xfc T:0xf0 O:1236 B4:23/3/0/1024
+            |<---------+ NON 2.05 M:0xf9 T:0xf0 O:1236 B4:23/0/0/1/1024
+            |     X<---+ NON 2.05 M:0xfa T:0xf0 O:1236 B4:23/0/1/1/1024
+            |     X<---+ NON 2.05 M:0xfb T:0xf0 O:1236 B4:23/0/2/1/1024
+            |<---------+ NON 2.05 M:0xfc T:0xf0 O:1236 B4:23/0/3/0/1024
             |          |
          [[Client realises blocks are missing and asks for the missing
               ones in one go]]
-            +--------->| NON GET /path M:0x02 T:0xf1 B4:23/1/0/1024\
-            |          |                             B4:23/2/0/1024
-            |     X<---+ NON 2.05 M:0xfd T:0xf1 B4:23/1/1/1024
-            |<---------+ NON 2.05 M:0xfe T:0xf1 B4:23/2/1/1024
+            +--------->| NON GET /path M:0x02 T:0xf1 B4:23/0/1/0/1024\
+            |          |                             B4:23/0/2/0/1024
+            |     X<---+ NON 2.05 M:0xfd T:0xf1 B4:23/0/1/1/1024
+            |<---------+ NON 2.05 M:0xfe T:0xf1 B4:23/0/2/1/1024
             |          |
          [[Get final missing block]]
-            +--------->| NON GET /path M:0x03 T:0xf2 B4:23/1/0/1024
-            |<---------+ NON 2.05 M:0xff T:0xf2 B4:23/1/1/1024
+            +--------->| NON GET /path M:0x03 T:0xf2 B4:23/0/1/0/1024
+            |<---------+ NON 2.05 M:0xff T:0xf2 B4:23/0/1/1/1024
                 ...
 
      Figure 6: Example of NON Notifications with Block4 Option (Blocks
@@ -1145,10 +1145,10 @@ A.1.  Block3 Option
            CoAP        CoAP
           Client      Server
             |          |
-            +--------->| CON PUT /path M:0x01 T:0xf0 B3:10/0/1/1024
-            +--------->| CON PUT /path M:0x02 T:0xf1 B3:10/1/1/1024
-            +--------->| CON PUT /path M:0x03 T:0xf2 B3:10/2/1/1024
-            +--------->| CON PUT /path M:0x04 T:0xf3 B3:10/3/0/1024
+            +--------->| CON PUT /path M:0x01 T:0xf0 B3:10/0/0/1/1024
+            +--------->| CON PUT /path M:0x02 T:0xf1 B3:10/0/1/1/1024
+            +--------->| CON PUT /path M:0x03 T:0xf2 B3:10/0/2/1/1024
+            +--------->| CON PUT /path M:0x04 T:0xf3 B3:10/0/3/0/1024
             |<---------+ ACK 0.00 M:0x01
             |<---------+ ACK 0.00 M:0x02
             |<---------+ ACK 0.00 M:0x03
@@ -1181,21 +1181,21 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
            CoAP        CoAP
           Client      Server
             |          |
-            +--------->| CON PUT /path M:0x05 T:0xf4 B3:11/0/1/1024
-            +--->X     | CON PUT /path M:0x06 T:0xf5 B3:11/1/1/1024
-            +--->X     | CON PUT /path M:0x07 T:0xf6 B3:11/2/1/1024
-            +--------->| CON PUT /path M:0x08 T:0xf7 B3:11/3/1/1024
+            +--------->| CON PUT /path M:0x05 T:0xf4 B3:11/0/0/1/1024
+            +--->X     | CON PUT /path M:0x06 T:0xf5 B3:11/0/1/1/1024
+            +--->X     | CON PUT /path M:0x07 T:0xf6 B3:11/0/2/1/1024
+            +--------->| CON PUT /path M:0x08 T:0xf7 B3:11/0/3/1/1024
             |<---------+ ACK 0.00 M:0x05
             |<---------+ ACK 0.00 M:0x08
             |          |
           [[The client retries sending packets not acknowledged]]
-            +--------->| CON PUT /path M:0x06 T:0xf5 B3:11/1/1/1024
-            +--->X     | CON PUT /path M:0x07 T:0xf6 B3:11/2/1/1024
+            +--------->| CON PUT /path M:0x06 T:0xf5 B3:11/0/1/1/1024
+            +--->X     | CON PUT /path M:0x07 T:0xf6 B3:11/0/2/1/1024
             |<---------+ ACK 0.00 M:0x06
             |          |
           [[The client retransmits messages not acknowledged
            (exponential backoff)]]
-            +--->?     | CON PUT /path M:0x07 T:0xf6 B3:11/2/1/1024
+            +--->?     | CON PUT /path M:0x07 T:0xf6 B3:11/0/2/1/1024
             |          |
           [[Either transmission failure (acknowledge retry timeout)
             or successfully transmitted.]]
@@ -1207,7 +1207,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    session continues to be used under such adverse traffic conditions.
 
    If there is likely to be the possibility of network transient losses,
-   then the use of Non-Confirmable traffic should be considered.
+   then the use of Non-confirmable traffic should be considered.
 
 A.2.  Block4 Option
 
@@ -1234,43 +1234,43 @@ Boucadair & Shallow     Expires November 23, 2020              [Page 22]
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
-           Client      Server
-             |          |
-             +--------->| CON GET /path M:0x01 T:0xf0 O:0 B4:0/0/0/1024
-             |<---------+ ACK 2.05 M:0x01 T:0xf0 O:1234 B4:21/0/1/1024
-             |<---------+ ACK 2.05 M:0xe1 T:0xf0 O:1234 B4:21/1/1/1024
-             |<---------+ ACK 2.05 M:0xe2 T:0xf0 O:1234 B4:21/2/1/1024
-             |<---------+ ACK 2.05 M:0xe3 T:0xf0 O:1234 B4:21/3/0/1024
+          Client      Server
+            |          |
+            +--------->| CON GET /path M:0x01 T:0xf0 O:0 B4:0/0/0/0/1024
+            |<---------+ ACK 2.05 M:0x01 T:0xf0 O:1234 B4:21/0/0/1/1024
+            |<---------+ ACK 2.05 M:0xe1 T:0xf0 O:1234 B4:21/0/1/1/1024
+            |<---------+ ACK 2.05 M:0xe2 T:0xf0 O:1234 B4:21/0/2/1/1024
+            |<---------+ ACK 2.05 M:0xe3 T:0xf0 O:1234 B4:21/0/3/0/1024
+                ...
+                    [[Observe triggered]]
+            |<---------+ CON 2.05 M:0xe4 T:0xf0 O:1235 B4:22/0/0/1/1024
+            |<---------+ CON 2.05 M:0xe5 T:0xf0 O:1235 B4:22/0/1/1/1024
+            |<---------+ CON 2.05 M:0xe6 T:0xf0 O:1235 B4:22/0/2/1/1024
+            |<---------+ CON 2.05 M:0xe7 T:0xf0 O:1235 B4:22/0/3/0/1024
+            |--------->+ ACK 0.00 M:0xe4
+            |--------->+ ACK 0.00 M:0xe5
+            |--------->+ ACK 0.00 M:0xe6
+            |--------->+ ACK 0.00 M:0xe7
                  ...
-                     [[Observe triggered]]
-             |<---------+ CON 2.05 M:0xe4 T:0xf0 O:1235 B4:22/0/1/1024
-             |<---------+ CON 2.05 M:0xe5 T:0xf0 O:1235 B4:22/1/1/1024
-             |<---------+ CON 2.05 M:0xe6 T:0xf0 O:1235 B4:22/2/1/1024
-             |<---------+ CON 2.05 M:0xe7 T:0xf0 O:1235 B4:22/3/0/1024
-             |--------->+ ACK 0.00 M:0xe4
-             |--------->+ ACK 0.00 M:0xe5
-             |--------->+ ACK 0.00 M:0xe6
-             |--------->+ ACK 0.00 M:0xe7
-                  ...
-                     [[Observe triggered]]
-             |<---------+ CON 2.05 M:0xe8 T:0xf0 O:1236 B4:23/0/1/1024
-             |     X<---+ CON 2.05 M:0xe9 T:0xf0 O:1236 B4:23/1/1/1024
-             |     X<---+ CON 2.05 M:0xea T:0xf0 O:1236 B4:23/2/1/1024
-             |<---------+ CON 2.05 M:0xeb T:0xf0 O:1236 B4:23/3/0/1024
-             |--------->+ ACK 0.00 M:0xe8
-             |--------->+ ACK 0.00 M:0xeb
-             |          |
-                     [[Server retransmits messages not acknowledged]]
-             |?---------+ CON 2.05 M:0xe9 T:0xf0 O:1236 B4:23/1/1/1024
-             |     X<---+ CON 2.05 M:0xea T:0xf0 O:1236 B4:23/2/1/1024
-             |--------->+ ACK 0.00 M:0xe9
-             |          |
-                     [[Server retransmits messages not acknowledged
-              (exponential backoff)]]
-             |     X<---+ CON 2.05 M:0xea T:0xf0 O:1236 B4:23/2/1/1024
-             |          |
-           [[Either transmission failure (acknowledge retry timeout)
-             or successfully transmitted.]]
+                    [[Observe triggered]]
+            |<---------+ CON 2.05 M:0xe8 T:0xf0 O:1236 B4:23/0/0/1/1024
+            |     X<---+ CON 2.05 M:0xe9 T:0xf0 O:1236 B4:23/0/1/1/1024
+            |     X<---+ CON 2.05 M:0xea T:0xf0 O:1236 B4:23/0/2/1/1024
+            |<---------+ CON 2.05 M:0xeb T:0xf0 O:1236 B4:23/0/3/0/1024
+            |--------->+ ACK 0.00 M:0xe8
+            |--------->+ ACK 0.00 M:0xeb
+            |          |
+                    [[Server retransmits messages not acknowledged]]
+            |?---------+ CON 2.05 M:0xe9 T:0xf0 O:1236 B4:23/0/1/1/1024
+            |     X<---+ CON 2.05 M:0xea T:0xf0 O:1236 B4:23/0/2/1/1024
+            |--------->+ ACK 0.00 M:0xe9
+            |          |
+                    [[Server retransmits messages not acknowledged
+             (exponential backoff)]]
+            |     X<---+ CON 2.05 M:0xea T:0xf0 O:1236 B4:23/0/2/1/1024
+            |          |
+          [[Either transmission failure (acknowledge retry timeout)
+            or successfully transmitted.]]
 
          Figure 9: Example of CON Notifications with Block4 Option
 
@@ -1279,7 +1279,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    session continues to be used under such adverse traffic conditions.
 
    If there is likely to be the possibility of network transient losses,
-   then the use of Non-Confirmable traffic should be considered.
+   then the use of Non-confirmable traffic should be considered.
 
 
 
