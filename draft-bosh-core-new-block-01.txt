@@ -76,13 +76,13 @@ Table of Contents
      3.4.  Using the Block 4 Option  . . . . . . . . . . . . . . . .  11
      3.5.  Working with Observe and Block4 Options . . . . . . . . .  12
      3.6.  Working with Size1 and Size2 Options  . . . . . . . . . .  12
-     3.7.  Streaming Support for the Block3 and Block4 Options . . .  12
+     3.7.  Streaming Support for the Block3 and Block4 Options . . .  13
      3.8.  Working with Etag Option  . . . . . . . . . . . . . . . .  13
      3.9.  Use of Block3 and Block4 Options Together . . . . . . . .  13
    4.  TBA3 (Missing Payloads) Response Code . . . . . . . . . . . .  13
    5.  Caching Considerations  . . . . . . . . . . . . . . . . . . .  14
-   6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .  14
-   7.  Examples of Selective Block Recovery  . . . . . . . . . . . .  14
+   6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .  15
+   7.  Examples of Selective Block Recovery  . . . . . . . . . . . .  15
      7.1.  Block3 Option: Non-Confirmable Example  . . . . . . . . .  15
      7.2.  Block4 Option: Non-Confirmable Example  . . . . . . . . .  16
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  18
@@ -307,13 +307,16 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 3.2.  Structure of Block3 and Block4 Options
 
    The structure of Block3 and Block4 Options follows the structure
-   defined in Section 2.2 of [RFC7959] with one additional field:
+   defined in Section 2.2 of [RFC7959] with two additional fields:
 
     Block Identifier (BID):  This number associates all the Blocks
       (individual payloads) that make up the body that is being
       transferred.
 
-   As such, four items of information may need to be transferred in a
+   S bit:  Streaming bit to indicate whether the client (or server) is
+      continuously sending blocks of data.
+
+   As such, five items of information may need to be transferred in a
    Block3 or Block4 Option:
 
    o  the size of the block (size exponent (SZX)),
@@ -323,13 +326,10 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    o  the relative number of the block (Block Number (NUM)) within a
       sequence of blocks with the given size,
 
-   o  the Block identifier number (BID) that is common to the sequence
-      of blocks with the same given size.  The BID is different for each
-      body or set of sequence of blocks.
+   o  whether this is about streaming data (Streaming (S)), and
 
-   The value of the Block3 or Block4 Option is a variable-size (0 to 7
-   byte) unsigned integer (uint) (Section 3.2 of [RFC7252]).  This
-   integer value encodes the aforementioned four fields as shown in
+
+
 
 
 
@@ -338,20 +338,27 @@ Boucadair & Shallow     Expires November 23, 2020               [Page 6]
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
+   o  the Block identifier number (BID) that is common to the sequence
+      of blocks with the same given size.  The BID is different for each
+      body or set of sequence of blocks.
+
+   The value of the Block3 or Block4 Option is a variable-size (0 to 7
+   byte) unsigned integer (uint) (Section 3.2 of [RFC7252]).  This
+   integer value encodes the aforementioned five fields as shown in
    Figure 1.  Note that, due to the CoAP uint-encoding rules, when all
-   of NUM, M, SZX, and BID happen to be zero, a zero-byte integer will
-   be sent.
+   of NUM, M, SZX, S, and BID happen to be zero, a zero-byte integer
+   will be sent.
 
       0                   1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     |      BID      |                   NUM                 |M| SZX |
+     |      BID    |S|                   NUM                 |M| SZX |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
       0                   1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     |               BID             |                   NUM
+     |               BID           |S|                   NUM
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
       NUM    |M| SZX |
      +-+-+-+-+-+-+-+-+
@@ -359,7 +366,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
       0                   1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     |                   BID                         |      NUM
+     |                   BID                       |S|      NUM
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
                  NUM         |M| SZX |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -367,7 +374,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
       0                   1                   2                   3
       0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-     |                             BID                               |
+     |                             BID                             |S|
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
      |                   NUM                 |M| SZX |
      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -375,16 +382,9 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
              Figure 1: Structure of Block3 and Block4 Options
 
-   The option value shifted right by 24 ("(val >> 24)")(the BID field)
-   is the Block identifier that identifies which sequence of blocks this
-   particular block is in.
+   The twenty-fourth least significant bit is the S-bit ("val &
+   0x1000000").
 
-   The current transfer is about the "size" bytes starting at byte "NUM
-   << (SZX + 4)".
-
-   Within the option value of a Block3 or Block4 Option, the meaning of
-   the option fields is defined below.  Note that the block size (SZX,
-   size exponent), the M-bit, and the NUM fields are defined in
 
 
 
@@ -394,6 +394,16 @@ Boucadair & Shallow     Expires November 23, 2020               [Page 7]
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
+   The option value shifted right by 25 ("(val >> 25)")(the BID field)
+   is the Block identifier that identifies which sequence of blocks this
+   particular block is in.
+
+   The current transfer is about the "size" bytes starting at byte "NUM
+   << (SZX + 4)".
+
+   Within the option value of a Block3 or Block4 Option, the meaning of
+   the option fields is defined below.  Note that the block size (SZX,
+   size exponent), the M-bit, and the NUM fields are defined in
    Section 2.2 of [RFC7959], but are provided below for the reader's
    convenience:
 
@@ -410,6 +420,8 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
       body, BID MUST be set to 0.  If the request is for one or more
       missing blocks, then the BID is set to the value of the BID of the
       partially received body.
+
+   S:   Streaming bit.  See Section 3.7.
 
    NUM:   Block Number, indicating the block number being requested or
       provided.  Block number '0' indicates the first block of a body
@@ -430,6 +442,14 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
       unsigned integer indicating the size of a block to the power of
       two.  Thus, block size = 2**(SZX + 4).  The allowed values of SZX
       are 0 to 6, i.e., the minimum block size is 2**(0+4) = 16 and the
+
+
+
+Boucadair & Shallow     Expires November 23, 2020               [Page 8]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
+
       maximum is 2**(6+4) = 1024.  The value 7 for SZX (which would
       indicate a block size of 2048) is used as a BERT Option in
       [RFC8323].
@@ -442,14 +462,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
       0, M-bit is unset, and BID is set to 0).  However, in contrast to
       the explicit value 0, which would indicate an SZX of 0, and thus a
       size value of 16 bytes, there is no specific explicit size implied
-
-
-
-Boucadair & Shallow     Expires November 23, 2020               [Page 8]
-
-Internet-Draft       New Block-Wise Transfer Options            May 2020
-
-
       by the absence of the option -- the size is left unspecified.  (As
       for any uint, the explicit value 0 is efficiently indicated by a
       zero-length option; this, therefore, is different in semantics
@@ -485,6 +497,15 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    be returned for successful transmission, or TBA3 to then resend the
    missing blocks (if any).
 
+
+
+
+
+Boucadair & Shallow     Expires November 23, 2020               [Page 9]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
+
    With NON transmission, the server acknowledges receipt of all of the
    payloads that make up the body or respond at any time during the
    receipt of the payloads to acknowledge that some of the payloads have
@@ -498,13 +519,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
    Non-empty Tokens MUST be included.  Each individual payload of the
    body MUST have a different Token.
-
-
-
-Boucadair & Shallow     Expires November 23, 2020               [Page 9]
-
-Internet-Draft       New Block-Wise Transfer Options            May 2020
-
 
    A 2.01 (Created) or 2.04 (Changed) Response Code indicates successful
    receipt of the entire body.  The 2.31 (Continue) Response Code MUST
@@ -540,6 +554,14 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    In all cases, multiple TBA3 (Missing Payloads) Response Codes are
    traffic limited by PROBING_RATE.
 
+
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 10]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
+
    If the client transmits a new body of data with a new BID to the same
    server, the server MUST remove any partially received body held for a
    previous BID for that resource.
@@ -549,18 +571,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
    A server SHOULD only maintain a partial body (missing payloads) for
    up to EXCHANGE_LIFETIME (Section 4.8.2 of [RFC7252]).
-
-
-
-
-
-
-
-
-Boucadair & Shallow     Expires November 23, 2020              [Page 10]
-
-Internet-Draft       New Block-Wise Transfer Options            May 2020
-
 
 3.4.  Using the Block 4 Option
 
@@ -599,6 +609,15 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    The client may elect to request the missing blocks, or just ignore
    the partial body.
 
+
+
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 11]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
+
    All the payload responses to a specific GET or FETCH request MUST
    have the same Token as in the request.
 
@@ -610,13 +629,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    acknowledge each packet as well as issuing a separate GET or FETCH
    for the missing blocks.  NSTART [RFC7252] will also need to be
    increased from the default (1) to get faster transmission rates.
-
-
-
-Boucadair & Shallow     Expires November 23, 2020              [Page 11]
-
-Internet-Draft       New Block-Wise Transfer Options            May 2020
-
 
    If the server transmits a new body of data with a new BID to the same
    client with the same Token, the client MUST remove any partially
@@ -654,18 +666,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    It is RECOMMENDED that the Size1 Option is used with the Block3
    Option and that the Size2 Option is used with the Block4 Option.
 
-   If Size1 or Size2 Options are used, they MUST be used in all payloads
-   of the body and MUST have the same value.
-
-3.7.  Streaming Support for the Block3 and Block4 Options
-
-   If the Size1 Option is not specified, there is support for streaming
-   data to the server by always setting the 'M' bit in the payload.  The
-   server can still indicate missing blocks with the TBA3 (Missing
-   Payloads) Response Code but is NOT RECOMMENDED.
-
-   Likewise, if the Size2 Option is not specified, there is support for
-   streaming data to the client by always setting the 'M' bit in the
 
 
 
@@ -674,7 +674,19 @@ Boucadair & Shallow     Expires November 23, 2020              [Page 12]
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
-   payload.  The client can request missing blocks but is NOT
+   If Size1 or Size2 Options are used, they MUST be used in all payloads
+   of the body and MUST have the same value.
+
+3.7.  Streaming Support for the Block3 and Block4 Options
+
+   If the Size1 Option is not specified, there is support for streaming
+   data to the server by always setting the 'S' and 'M' bits in the
+   payload.  The server can still indicate missing blocks with the TBA3
+   (Missing Payloads) Response Code but is NOT RECOMMENDED.
+
+   Likewise, if the Size2 Option is not specified, there is support for
+   streaming data to the client by always setting the 'S' and 'M' bits
+   in the payload.  The client can request missing blocks but is NOT
    RECOMMENDED.
 
    When the Block Number (NUM) reaches the maximum(2^20 -1), it simply
@@ -710,6 +722,14 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    code used to indicate that the server has not received the blocks of
    the request body that it needs to proceed.
 
+
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 13]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
+
    Likely causes are the client has not sent all blocks, some blocks
    were dropped during transmission, or the client has sent them long
    enough ago that the server has already discarded them.
@@ -721,15 +741,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    packet is larger than that defined by Section 4.6 [RFC7252], then the
    number of missing blocks MUST be limited so that the response can fit
    into a single packet.  If necessary, multiple TBA3 (Missing Payloads)
-
-
-
-
-Boucadair & Shallow     Expires November 23, 2020              [Page 13]
-
-Internet-Draft       New Block-Wise Transfer Options            May 2020
-
-
    Response Codes can be sent back; each covering a unique set of
    missing blocks.
 
@@ -765,6 +776,16 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    How long a CoAP endpoint (or proxy) keeps the body in its cache is
    implementation specific (e.g., it may be based on Max-Age).
 
+
+
+
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 14]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
+
 6.  HTTP-Mapping Considerations
 
    As a reminder, the basic normative requirements on HTTP/CoAP mappings
@@ -778,13 +799,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    This section provides some sample flows to illustrate the use of
    Block3 and Block4 Options.  These conventions are used in the
    following subsections:
-
-
-
-Boucadair & Shallow     Expires November 23, 2020              [Page 14]
-
-Internet-Draft       New Block-Wise Transfer Options            May 2020
-
 
       T: Token value
       O: Observe Option value
@@ -818,6 +832,16 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    client, but some blocks are dropped in transmission as illustrated in
    Figure 3.
 
+
+
+
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 15]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
+
            CoAP        CoAP
           Client      Server
             |          |
@@ -833,14 +857,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    The server realizes that some blocks are missing and asks for the
    missing ones in one go (Figure 4).  It does so by indicating which
    blocks have been received in the data portion of the response.
-
-
-
-
-Boucadair & Shallow     Expires November 23, 2020              [Page 15]
-
-Internet-Draft       New Block-Wise Transfer Options            May 2020
-
 
            CoAP        CoAP
           Client      Server
@@ -871,22 +887,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    without any loss.  Each of these blocks carries a Block4 Option.  The
    same process is repeated when an Observe is triggered, but no loss is
    experienced by any of the notification blocks.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

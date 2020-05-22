@@ -277,14 +277,17 @@
 
       <section title="Structure of Block3 and Block4 Options">
         <t>The structure of Block3 and Block4 Options follows the structure
-        defined in Section 2.2 of <xref target="RFC7959"></xref> with one
-        additional field:<list style="hanging">
+        defined in Section 2.2 of <xref target="RFC7959"></xref> with two
+        additional fields:<list style="hanging">
             <t hangText=" Block Identifier (BID):">This number associates all
             the Blocks (individual payloads) that make up the body that is
             being transferred.</t>
+
+            <t hangText="S bit:">Streaming bit to indicate whether the client
+            (or server) is continuously sending blocks of data. </t>
           </list></t>
 
-        <t>As such, four items of information may need to be transferred in a
+        <t>As such, five items of information may need to be transferred in a
         Block3 or Block4 Option: <list style="symbols">
             <t>the size of the block (size exponent (SZX)),</t>
 
@@ -292,6 +295,8 @@
 
             <t>the relative number of the block (Block Number (NUM)) within a
             sequence of blocks with the given size,</t>
+
+            <t>whether this is about streaming data (Streaming (S)), and</t>
 
             <t>the Block identifier number (BID) that is common to the
             sequence of blocks with the same given size. The BID is different
@@ -301,23 +306,23 @@
         <t>The value of the Block3 or Block4 Option is a variable-size (0 to 7
         byte) unsigned integer (uint) (Section 3.2 of <xref
         target="RFC7252"></xref>). This integer value encodes the
-        aforementioned four fields as shown in <xref
+        aforementioned five fields as shown in <xref
         target="structure"></xref>. Note that, due to the CoAP uint-encoding
-        rules, when all of NUM, M, SZX, and BID happen to be zero, a zero-byte
-        integer will be sent.</t>
+        rules, when all of NUM, M, SZX, S, and BID happen to be zero, a
+        zero-byte integer will be sent.</t>
 
         <t><figure align="center" anchor="structure"
             title="Structure of Block3 and Block4 Options">
             <artwork align="center"><![CDATA[ 0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|      BID      |                   NUM                 |M| SZX |
+|      BID    |S|                   NUM                 |M| SZX |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|               BID             |                   NUM              
+|               BID           |S|                   NUM              
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  NUM    |M| SZX |
 +-+-+-+-+-+-+-+-+
@@ -325,7 +330,7 @@
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                   BID                         |      NUM       
+|                   BID                       |S|      NUM       
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
             NUM         |M| SZX |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -333,7 +338,7 @@
  0                   1                   2                   3
  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-|                             BID                               |
+|                             BID                             |S|
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 |                   NUM                 |M| SZX |
 +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -341,8 +346,11 @@
 ]]></artwork>
           </figure></t>
 
-        <t>The option value shifted right by 24 (&ldquo;(val &gt;&gt;
-        24)&rdquo;)(the BID field) is the Block identifier that identifies
+        <t>The twenty-fourth least significant bit is the S-bit ("val &amp;
+        0x1000000").</t>
+
+        <t>The option value shifted right by 25 (&ldquo;(val &gt;&gt;
+        25)&rdquo;)(the BID field) is the Block identifier that identifies
         which sequence of blocks this particular block is in.</t>
 
         <t>The current transfer is about the "size" bytes starting at byte
@@ -364,6 +372,9 @@
             to request a complete transfer of a body, BID MUST be set to 0. If
             the request is for one or more missing blocks, then the BID is set
             to the value of the BID of the partially received body. </t>
+
+            <t hangText="S: ">Streaming bit. See <xref
+            target="stream"></xref>.</t>
 
             <t hangText="NUM: ">Block Number, indicating the block number
             being requested or provided. Block number '0' indicates the first
@@ -591,16 +602,17 @@
         payloads of the body and MUST have the same value.</t>
       </section>
 
-      <section title="Streaming Support for the Block3 and Block4 Options">
+      <section anchor="stream"
+               title="Streaming Support for the Block3 and Block4 Options">
         <t>If the Size1 Option is not specified, there is support for
-        streaming data to the server by always setting the 'M' bit in the
-        payload. The server can still indicate missing blocks with the TBA3
-        (Missing Payloads) Response Code but is NOT RECOMMENDED. </t>
+        streaming data to the server by always setting the 'S' and 'M' bits in
+        the payload. The server can still indicate missing blocks with the
+        TBA3 (Missing Payloads) Response Code but is NOT RECOMMENDED. </t>
 
         <t>Likewise, if the Size2 Option is not specified, there is support
-        for streaming data to the client by always setting the 'M' bit in the
-        payload. The client can request missing blocks but is NOT RECOMMENDED.
-        </t>
+        for streaming data to the client by always setting the 'S' and 'M'
+        bits in the payload. The client can request missing blocks but is NOT
+        RECOMMENDED. </t>
 
         <t>When the Block Number (NUM) reaches the maximum(2^20 -1), it simply
         wraps around to 0 and then continues to be incremented for each
