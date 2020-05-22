@@ -5,7 +5,7 @@
 CORE                                                        M. Boucadair
 Internet-Draft                                                    Orange
 Intended status: Standards Track                              J. Shallow
-Expires: November 22, 2020                                  May 21, 2020
+Expires: November 23, 2020                                  May 22, 2020
 
 
 New Constrained Application Protocol (CoAP) Block-Wise Transfer Options
@@ -18,7 +18,7 @@ Abstract
    options are similar to the CoAP Block1 and Block2 Options, but enable
    faster transmission rates for large amounts of data with less packet
    interchanges as well as supporting faster recovery should any of the
-   Blocks get lost in transmission.
+   blocks get lost in transmission.
 
 Status of This Memo
 
@@ -35,7 +35,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on November 22, 2020.
+   This Internet-Draft will expire on November 23, 2020.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Boucadair & Shallow     Expires November 22, 2020               [Page 1]
+Boucadair & Shallow     Expires November 23, 2020               [Page 1]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -69,33 +69,35 @@ Table of Contents
      1.3.  New CoAP Response Code  . . . . . . . . . . . . . . . . .   4
      1.4.  Applicability Scope . . . . . . . . . . . . . . . . . . .   4
    2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   4
-   3.  The Block3 and Block4 Options . . . . . . . . . . . . . . . .   4
+   3.  The Block3 and Block4 Options . . . . . . . . . . . . . . . .   5
      3.1.  Properties of Block3 and Block4 Options . . . . . . . . .   5
      3.2.  Structure of Block3 and Block4 Options  . . . . . . . . .   6
      3.3.  Using the Block3 Option . . . . . . . . . . . . . . . . .   9
-     3.4.  Using the Block 4 Option  . . . . . . . . . . . . . . . .  10
-     3.5.  Working with Observe and Block4 . . . . . . . . . . . . .  11
+     3.4.  Using the Block 4 Option  . . . . . . . . . . . . . . . .  11
+     3.5.  Working with Observe and Block4 Options . . . . . . . . .  12
      3.6.  Working with Size1 and Size2 Options  . . . . . . . . . .  12
-     3.7.  Working with Etag Option  . . . . . . . . . . . . . . . .  12
-     3.8.  Use of Block3 and Block4 Options Together . . . . . . . .  12
-   4.  TBA3 (Missing Payloads) Response Code . . . . . . . . . . . .  12
-   5.  Caching Considerations  . . . . . . . . . . . . . . . . . . .  13
-   6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .  13
-   7.  Examples of Selective Block Recovery  . . . . . . . . . . . .  14
-     7.1.  Block3 Option: Non-Confirmable Example  . . . . . . . . .  14
-     7.2.  Block4 Option: Non-Confirmable Example  . . . . . . . . .  15
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  17
-     8.1.  New CoAP Options  . . . . . . . . . . . . . . . . . . . .  17
-     8.2.  New CoAP Response Code  . . . . . . . . . . . . . . . . .  18
-   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  18
-   10. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  18
-   11. References  . . . . . . . . . . . . . . . . . . . . . . . . .  18
-     11.1.  Normative References . . . . . . . . . . . . . . . . . .  18
-     11.2.  Informative References . . . . . . . . . . . . . . . . .  19
-   Appendix A.  Examples with Confirmable Messages . . . . . . . . .  20
-     A.1.  Block3 Option . . . . . . . . . . . . . . . . . . . . . .  20
-     A.2.  Block4 Option . . . . . . . . . . . . . . . . . . . . . .  21
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  23
+     3.7.  Streaming Support for the Block3 Option . . . . . . . . .  12
+     3.8.  Streaming Support for the Block4 Option . . . . . . . . .  13
+     3.9.  Working with Etag Option  . . . . . . . . . . . . . . . .  13
+     3.10. Use of Block3 and Block4 Options Together . . . . . . . .  13
+   4.  TBA3 (Missing Payloads) Response Code . . . . . . . . . . . .  13
+   5.  Caching Considerations  . . . . . . . . . . . . . . . . . . .  14
+   6.  HTTP-Mapping Considerations . . . . . . . . . . . . . . . . .  14
+   7.  Examples of Selective Block Recovery  . . . . . . . . . . . .  15
+     7.1.  Block3 Option: Non-Confirmable Example  . . . . . . . . .  15
+     7.2.  Block4 Option: Non-Confirmable Example  . . . . . . . . .  16
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  18
+     8.1.  New CoAP Options  . . . . . . . . . . . . . . . . . . . .  18
+     8.2.  New CoAP Response Code  . . . . . . . . . . . . . . . . .  19
+   9.  Security Considerations . . . . . . . . . . . . . . . . . . .  19
+   10. Acknowledgements  . . . . . . . . . . . . . . . . . . . . . .  19
+   11. References  . . . . . . . . . . . . . . . . . . . . . . . . .  19
+     11.1.  Normative References . . . . . . . . . . . . . . . . . .  19
+     11.2.  Informative References . . . . . . . . . . . . . . . . .  20
+   Appendix A.  Examples with Confirmable Messages . . . . . . . . .  21
+     A.1.  Block3 Option . . . . . . . . . . . . . . . . . . . . . .  21
+     A.2.  Block4 Option . . . . . . . . . . . . . . . . . . . . . .  22
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  24
 
 1.  Introduction
 
@@ -104,16 +106,16 @@ Table of Contents
    The Constrained Application Protocol (CoAP) [RFC7252], although
    inspired by HTTP, was designed to use UDP instead of TCP.  The
    message layer of CoAP over UDP includes support for reliable
-   delivery, simple congestion control, and flow control.  [RFC7959]
-   introduced the CoAP Block1 and Block2 Options to handle data records
 
 
 
-Boucadair & Shallow     Expires November 22, 2020               [Page 2]
+Boucadair & Shallow     Expires November 23, 2020               [Page 2]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
+   delivery, simple congestion control, and flow control.  [RFC7959]
+   introduced the CoAP Block1 and Block2 Options to handle data records
    that cannot fit in a single IP packet, so not having to rely on IP
    fragmentation.
 
@@ -160,16 +162,16 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    will then retransmit only the blocks that have been lost in
    transmission.
 
-   Alternative CoAP Options may be considered to cover the extra
-   functionality of the Block3 and Block4 Options using Block1 and
 
 
 
-Boucadair & Shallow     Expires November 22, 2020               [Page 3]
+Boucadair & Shallow     Expires November 23, 2020               [Page 3]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
+   Alternative CoAP Options may be considered to cover the extra
+   functionality of the Block3 and Block4 Options using Block1 and
    Block2, but then the semantic and usage of the Block1 and Block2
    Options would have to change.
 
@@ -212,7 +214,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    used for the entire resource representation that is being transferred
    in a block-wise fashion.
 
-3.  The Block3 and Block4 Options
 
 
 
@@ -220,11 +221,12 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
 
-
-Boucadair & Shallow     Expires November 22, 2020               [Page 4]
+Boucadair & Shallow     Expires November 23, 2020               [Page 4]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
+
+3.  The Block3 and Block4 Options
 
 3.1.  Properties of Block3 and Block4 Options
 
@@ -232,8 +234,8 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    The formatting of this table follows the one used in Table 4 of
    [RFC7252] (Section 5.10).  The C, U, N, and R columns indicate the
    properties Critical, Unsafe, NoCacheKey, and Repeatable defined in
-   Section 5.4 of [RFC7252].  Only C column is marked for Block3 Option.
-   Only C and R columns are marked Block4 Option.
+   Section 5.4 of [RFC7252].  Only C column is marked for the Block3
+   Option.  Only C and R columns are marked for the Block4 Option.
 
       +--------+---+---+---+---+-----------+--------+--------+---------+
       | Number | C | U | N | R | Name      | Format | Length | Default |
@@ -271,17 +273,17 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    payload will be formed or was processed (referred to as "control
    usage").
 
-   Implementation of Block3 (or Block4) Option is intended to be
-   optional.  However, when it is present in a CoAP message, it MUST be
 
 
 
 
-Boucadair & Shallow     Expires November 22, 2020               [Page 5]
+Boucadair & Shallow     Expires November 23, 2020               [Page 5]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
+   Implementation of Block3 (or Block4) Option is intended to be
+   optional.  However, when it is present in a CoAP message, it MUST be
    processed (or the message rejected).  Therefore, Block3 and Block4
    Options are identified as Critical options.
 
@@ -328,16 +330,15 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    The value of the Block3 or Block4 Option is a variable-size (0 to 7
    byte) unsigned integer (uint) (Section 3.2 of [RFC7252]).  This
    integer value encodes the aforementioned four fields as shown in
-   Figure 1.  Note that, due to the CoAP uint-encoding rules, when all
 
 
 
-
-Boucadair & Shallow     Expires November 22, 2020               [Page 6]
+Boucadair & Shallow     Expires November 23, 2020               [Page 6]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
+   Figure 1.  Note that, due to the CoAP uint-encoding rules, when all
    of NUM, M, SZX, and BID happen to be zero, a zero-byte integer will
    be sent.
 
@@ -384,15 +385,17 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    Within the option value of a Block3 or Block4 Option, the meaning of
    the option fields is defined below.  Note that the block size (SZX,
    size exponent), the M-bit, and the NUM fields are defined in
-   Section 2.2 of [RFC7959], but are provided below for the reader's
-   convenience:
 
 
 
-Boucadair & Shallow     Expires November 22, 2020               [Page 7]
+
+Boucadair & Shallow     Expires November 23, 2020               [Page 7]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
+
+   Section 2.2 of [RFC7959], but are provided below for the reader's
+   convenience:
 
    BID:   This block identifier is the same for all of the blocks in the
       body of data that is being transferred.  It is used when a
@@ -439,17 +442,16 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
       0, M-bit is unset, and BID is set to 0).  However, in contrast to
       the explicit value 0, which would indicate an SZX of 0, and thus a
       size value of 16 bytes, there is no specific explicit size implied
-      by the absence of the option -- the size is left unspecified.  (As
-      for any uint, the explicit value 0 is efficiently indicated by a
 
 
 
-
-Boucadair & Shallow     Expires November 22, 2020               [Page 8]
+Boucadair & Shallow     Expires November 23, 2020               [Page 8]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
+      by the absence of the option -- the size is left unspecified.  (As
+      for any uint, the explicit value 0 is efficiently indicated by a
       zero-length option; this, therefore, is different in semantics
       from the absence of the option).
 
@@ -499,9 +501,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
 
-
-
-Boucadair & Shallow     Expires November 22, 2020               [Page 9]
+Boucadair & Shallow     Expires November 23, 2020               [Page 9]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -544,8 +544,23 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    server, the server MUST remove any partially received body held for a
    previous BID for that resource.
 
+   If the server receives a duplicate block with the same BID, it SHOULD
+   silently ignore the packet.
+
    A server SHOULD only maintain a partial body (missing payloads) for
    up to EXCHANGE_LIFETIME (Section 4.8.2 of [RFC7252]).
+
+
+
+
+
+
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 10]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
 
 3.4.  Using the Block 4 Option
 
@@ -553,14 +568,6 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    by using the Block4 Option in the GET or FETCH request.  If the
    Block4 Option is not included in the request, the server MUST NOT
    send data using the Block4 Option.
-
-
-
-
-Boucadair & Shallow     Expires November 22, 2020              [Page 10]
-
-Internet-Draft       New Block-Wise Transfer Options            May 2020
-
 
    The initiating request that contains Block4 Option MUST set both BID
    and 'M' to 0.  All other Block4 Options in a request MUST have the
@@ -604,25 +611,35 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    for the missing blocks.  NSTART [RFC7252] will also need to be
    increased from the default (1) to get faster transmission rates.
 
-3.5.  Working with Observe and Block4
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 11]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
+
+   If the server transmits a new body of data with a new BID to the same
+   client with the same Token, the client MUST remove any partially
+   received body held for a previous BID for that Token.
+
+   If the client receives a duplicate block with the same BID, it SHOULD
+   silently ignore the packet.
+
+   A client SHOULD only maintain a partial body (missing payloads) for
+   up to EXCHANGE_LIFETIME (Section 4.8.2 of [RFC7252]) or as defined by
+   the Max-Age Option whichever is the less.
+
+3.5.  Working with Observe and Block4 Options
 
    As the blocks of the body are sent without waiting for
    acknowledgement of the individual blocks, the Observe value [RFC7641]
    MUST be the same for all the blocks of the same body.
 
-
-
-
-Boucadair & Shallow     Expires November 22, 2020              [Page 11]
-
-Internet-Draft       New Block-Wise Transfer Options            May 2020
-
-
    Likewise, the Tokens MUST all have the same value for all the blocks
    of the same body.  This is so that if any of the blocks gets lost
    during transmission (including the first one), the receiving CoAP
    endpoint can take the appropriate decisions as to how to continue
-   (implementation-specific).
+   (implementation specific).
 
    If the client requests missing blocks, the client MUST use a
    different Token; all repeated missing blocks for that new request
@@ -640,19 +657,53 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    If Size1 or Size2 Options are used, they MUST be used in all payloads
    of the body and MUST have the same value.
 
-3.7.  Working with Etag Option
+3.7.  Streaming Support for the Block3 Option
 
-   The Etag Option defined in Section 5.10.6 of [RFC7252] applies to the
+   If the Size1 Option is not specified, there is support for streaming
+   data to the server by always setting the 'M' bit in the payload.
+   When the Block Number reaches the maximum(2^20 -1), it simply wraps
+   around to 0 and then continues to be incremented for each payload.
+
+   The server can still indicate missing blocks with the TBA3 (Missing
+   Payloads) Response Code but is NOT RECOMMENDED.  Use of MAX_PAYLOADS
+
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 12]
+
+Internet-Draft       New Block-Wise Transfer Options            May 2020
+
+
+   has still to be followed so that the network is not overloaded with
+   too much traffic.
+
+3.8.  Streaming Support for the Block4 Option
+
+   If the Size2 Option is not specified, there is support for streaming
+   data to the client by always setting the 'M' bit in the payload.
+   When the Block Number reaches the maximum(2^20 -1), it simply wraps
+   around to 0 and then continues to be incremented for each payload.
+
+   The client can request missing blocks but is NOT RECOMMENDED.  Use of
+   MAX_PAYLOADS has still to be followed so that the network is not
+   overloaded with too much traffic.
+
+3.9.  Working with Etag Option
+
+   The ETag Option defined in Section 5.10.6 of [RFC7252] applies to the
    whole representation of the resource, and thus to the body of the
    response.
 
-   If Etag Option is used, it MUST be used in all payloads of the body
+   If ETag Option is used, it MUST be used in all payloads of the body
    and MUST have the same value.
 
-   If Etag is used in the request, then Section 5.10.6.2 of [RFC7252]
+   If the ETag changes, but the BID does not, then the payload MUST be
+   ignored as it is invalid and cannot be included in the partial body.
+
+   If ETag is used in the request, then Section 5.10.6.2 of [RFC7252]
    still applies.  As such, 2.03 (Valid) Response Code can be returned.
 
-3.8.  Use of Block3 and Block4 Options Together
+3.10.  Use of Block3 and Block4 Options Together
 
    The behavior is similar to the one defined in Section 3.3 of
    [RFC7959] with Block3 substituted for Block1 and Block4 for Block2.
@@ -667,20 +718,21 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    were dropped during transmission, or the client has sent them long
    enough ago that the server has already discarded them.
 
+   The body of the TBA3 (Missing Payloads) Response Code contains a
+   count of the missing block numbers followed by set of 1 or more
+   missing block numbers encoded in CBOR format (0 unsigned) for
+   compactness.  If the size of the TBA3 (Missing Payloads) response
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 12]
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 13]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
-   The body of the TBA3 (Missing Payloads) Response Code contains a
-   count of the missing block numbers followed by set of 1 or missing
-   block numbers encoded in CBOR format (0 unsigned) for compactness.
-   If the size of the TBA3 (Missing Payloads) response packet is larger
-   than that defined by Section 4.6 [RFC7252], then the number of
-   missing blocks MUST be limited so that the response can fit into a
-   single packet.  If necessary, multiple TBA3 (Missing Payloads)
+   packet is larger than that defined by Section 4.6 [RFC7252], then the
+   number of missing blocks MUST be limited so that the response can fit
+   into a single packet.  If necessary, multiple TBA3 (Missing Payloads)
    Response Codes can be sent back; each covering a unique set of
    missing blocks.
 
@@ -714,7 +766,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    back to the client with the cache getting updated.
 
    How long a CoAP endpoint (or proxy) keeps the body in its cache is
-   implementation-specific (e.g., it may be based on Max-Age).
+   implementation specific (e.g., it may be based on Max-Age).
 
 6.  HTTP-Mapping Considerations
 
@@ -722,21 +774,23 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    are defined in Section 10 of [RFC7252].  The implementation
    guidelines for HTTP/CoAP mappings are elaborated in [RFC8075].
 
+   The rules defined in Section 5 of [RFC7959] are to be followed.
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 13]
+
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 14]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
-   The rules defined in Section 5 of [RFC7959] are to be followed.
-
 7.  Examples of Selective Block Recovery
 
    This section provides some sample flows to illustrate the use of
-   Block3 and Block4 Options.  The following conventions are used in the
-   following sub-sections:
+   Block3 and Block4 Options.  These conventions are used in the
+   following subsections:
 
       T: Token value
       O: Observe Option value
@@ -781,7 +835,9 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 14]
+
+
+Boucadair & Shallow     Expires November 23, 2020              [Page 15]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -819,7 +875,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    Figure 4: Example of NON Request with Block3 Option (Blocks Recovery)
 
    Under high levels of traffic loss, the client can elect not to retry
-   sending missing blocks of data.  This decision is implementation-
+   sending missing blocks of data.  This decision is implementation
    specific.
 
 7.2.  Block4 Option: Non-Confirmable Example
@@ -837,7 +893,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 15]
+Boucadair & Shallow     Expires November 23, 2020              [Page 16]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -893,7 +949,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 16]
+Boucadair & Shallow     Expires November 23, 2020              [Page 17]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -924,7 +980,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
                                  Recovery)
 
    Under high levels of traffic loss, the client can elect not to retry
-   getting missing blocks of data.  This decision is implementation-
+   getting missing blocks of data.  This decision is implementation
    specific.
 
 8.  IANA Considerations
@@ -944,12 +1000,12 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
               Table 2: CoAP Block3 and Block4 Option Numbers
 
-   This document suggests XX (TBA1) and XX (TBA2) as a values to be
+   This document suggests 21 (TBA1) and 25 (TBA2) as a values to be
    assigned for the new option numbers.
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 17]
+Boucadair & Shallow     Expires November 23, 2020              [Page 18]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -1005,7 +1061,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 18]
+Boucadair & Shallow     Expires November 23, 2020              [Page 19]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -1061,7 +1117,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 19]
+Boucadair & Shallow     Expires November 23, 2020              [Page 20]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -1117,7 +1173,7 @@ A.1.  Block3 Option
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 20]
+Boucadair & Shallow     Expires November 23, 2020              [Page 21]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -1173,7 +1229,7 @@ A.2.  Block4 Option
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 21]
+Boucadair & Shallow     Expires November 23, 2020              [Page 22]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -1229,7 +1285,7 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 22]
+Boucadair & Shallow     Expires November 23, 2020              [Page 23]
 
 Internet-Draft       New Block-Wise Transfer Options            May 2020
 
@@ -1285,4 +1341,4 @@ Authors' Addresses
 
 
 
-Boucadair & Shallow     Expires November 22, 2020              [Page 23]
+Boucadair & Shallow     Expires November 23, 2020              [Page 24]

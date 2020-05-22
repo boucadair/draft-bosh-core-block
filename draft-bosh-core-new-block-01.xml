@@ -93,7 +93,7 @@
       are similar to the CoAP Block1 and Block2 Options, but enable faster
       transmission rates for large amounts of data with less packet
       interchanges as well as supporting faster recovery should any of the
-      Blocks get lost in transmission. </t>
+      blocks get lost in transmission. </t>
     </abstract>
   </front>
 
@@ -209,8 +209,8 @@
         target="RFC7252"></xref> (Section 5.10). The C, U, N, and R columns
         indicate the properties Critical, Unsafe, NoCacheKey, and Repeatable
         defined in Section 5.4 of <xref target="RFC7252"></xref>. Only C
-        column is marked for Block3 Option. Only C and R columns are marked
-        Block4 Option.</t>
+        column is marked for the Block3 Option. Only C and R columns are
+        marked for the Block4 Option.</t>
 
         <t><figure align="center">
             <artwork align="center"><![CDATA[    +--------+---+---+---+---+-----------+--------+--------+---------+
@@ -490,6 +490,9 @@
         same server, the server MUST remove any partially received body held
         for a previous BID for that resource.</t>
 
+        <t>If the server receives a duplicate block with the same BID, it
+        SHOULD silently ignore the packet.</t>
+
         <t>A server SHOULD only maintain a partial body (missing payloads) for
         up to EXCHANGE_LIFETIME (Section 4.8.2 of <xref
         target="RFC7252"></xref>).</t>
@@ -544,9 +547,21 @@
         the missing blocks. NSTART <xref target="RFC7252"></xref> will also
         need to be increased from the default (1) to get faster transmission
         rates.</t>
+
+        <t>If the server transmits a new body of data with a new BID to the
+        same client with the same Token, the client MUST remove any partially
+        received body held for a previous BID for that Token. </t>
+
+        <t>If the client receives a duplicate block with the same BID, it
+        SHOULD silently ignore the packet.</t>
+
+        <t>A client SHOULD only maintain a partial body (missing payloads) for
+        up to EXCHANGE_LIFETIME (Section 4.8.2 of <xref
+        target="RFC7252"></xref>) or as defined by the Max-Age Option
+        whichever is the less. </t>
       </section>
 
-      <section title="Working with Observe and Block4">
+      <section title="Working with Observe and Block4 Options">
         <t>As the blocks of the body are sent without waiting for
         acknowledgement of the individual blocks, the Observe value <xref
         target="RFC7641"></xref> MUST be the same for all the blocks of the
@@ -556,7 +571,7 @@
         blocks of the same body. This is so that if any of the blocks gets
         lost during transmission (including the first one), the receiving CoAP
         endpoint can take the appropriate decisions as to how to continue
-        (implementation-specific). </t>
+        (implementation specific). </t>
 
         <t>If the client requests missing blocks, the client MUST use a
         different Token; all repeated missing blocks for that new request MUST
@@ -576,15 +591,44 @@
         payloads of the body and MUST have the same value.</t>
       </section>
 
+      <section title="Streaming Support for the Block3 Option">
+        <t>If the Size1 Option is not specified, there is support for
+        streaming data to the server by always setting the 'M' bit in the
+        payload. When the Block Number reaches the maximum(2^20 -1), it simply
+        wraps around to 0 and then continues to be incremented for each
+        payload. </t>
+
+        <t>The server can still indicate missing blocks with the TBA3 (Missing
+        Payloads) Response Code but is NOT RECOMMENDED. Use of MAX_PAYLOADS
+        has still to be followed so that the network is not overloaded with
+        too much traffic.</t>
+      </section>
+
+      <section title="Streaming Support for the Block4 Option">
+        <t>If the Size2 Option is not specified, there is support for
+        streaming data to the client by always setting the 'M' bit in the
+        payload. When the Block Number reaches the maximum(2^20 -1), it simply
+        wraps around to 0 and then continues to be incremented for each
+        payload. </t>
+
+        <t>The client can request missing blocks but is NOT RECOMMENDED. Use
+        of MAX_PAYLOADS has still to be followed so that the network is not
+        overloaded with too much traffic.</t>
+      </section>
+
       <section title="Working with Etag Option">
-        <t>The Etag Option defined in Section 5.10.6 of <xref
+        <t>The ETag Option defined in Section 5.10.6 of <xref
         target="RFC7252"></xref> applies to the whole representation of the
         resource, and thus to the body of the response.</t>
 
-        <t>If Etag Option is used, it MUST be used in all payloads of the body
+        <t>If ETag Option is used, it MUST be used in all payloads of the body
         and MUST have the same value.</t>
 
-        <t>If Etag is used in the request, then Section 5.10.6.2 of <xref
+        <t>If the ETag changes, but the BID does not, then the payload MUST be
+        ignored as it is invalid and cannot be included in the partial
+        body.</t>
+
+        <t>If ETag is used in the request, then Section 5.10.6.2 of <xref
         target="RFC7252"></xref> still applies. As such, 2.03 (Valid) Response
         Code can be returned.</t>
       </section>
@@ -606,13 +650,13 @@
       enough ago that the server has already discarded them. </t>
 
       <t>The body of the TBA3 (Missing Payloads) Response Code contains a
-      count of the missing block numbers followed by set of 1 or missing block
-      numbers encoded in CBOR format (0 unsigned) for compactness. If the size
-      of the TBA3 (Missing Payloads) response packet is larger than that
-      defined by Section 4.6 <xref target="RFC7252"></xref>, then the number
-      of missing blocks MUST be limited so that the response can fit into a
-      single packet. If necessary, multiple TBA3 (Missing Payloads) Response
-      Codes can be sent back; each covering a unique set of missing
+      count of the missing block numbers followed by set of 1 or more missing
+      block numbers encoded in CBOR format (0 unsigned) for compactness. If
+      the size of the TBA3 (Missing Payloads) response packet is larger than
+      that defined by Section 4.6 <xref target="RFC7252"></xref>, then the
+      number of missing blocks MUST be limited so that the response can fit
+      into a single packet. If necessary, multiple TBA3 (Missing Payloads)
+      Response Codes can be sent back; each covering a unique set of missing
       blocks.</t>
 
       <t>The Content-Format Option MUST be used in the TBA3 (Missing Payloads)
@@ -645,7 +689,7 @@
       the cache getting updated. </t>
 
       <t>How long a CoAP endpoint (or proxy) keeps the body in its cache is
-      implementation-specific (e.g., it may be based on Max-Age).</t>
+      implementation specific (e.g., it may be based on Max-Age).</t>
     </section>
 
     <section title="HTTP-Mapping Considerations">
@@ -660,8 +704,8 @@
 
     <section title="Examples of Selective Block Recovery">
       <t>This section provides some sample flows to illustrate the use of
-      Block3 and Block4 Options. The following conventions are used in the
-      following sub-sections:</t>
+      Block3 and Block4 Options. These conventions are used in the following
+      subsections:</t>
 
       <t><figure>
           <artwork><![CDATA[   T: Token value
@@ -738,8 +782,8 @@ X<--: Message loss
           </figure></t>
 
         <t>Under high levels of traffic loss, the client can elect not to
-        retry sending missing blocks of data. This decision is
-        implementation-specific.</t>
+        retry sending missing blocks of data. This decision is implementation
+        specific.</t>
       </section>
 
       <section title="Block4 Option: Non-Confirmable Example">
@@ -805,8 +849,8 @@ X<--: Message loss
           </figure></t>
 
         <t>Under high levels of traffic loss, the client can elect not to
-        retry getting missing blocks of data. This decision is
-        implementation-specific.</t>
+        retry getting missing blocks of data. This decision is implementation
+        specific.</t>
       </section>
     </section>
 
@@ -827,7 +871,7 @@ X<--: Message loss
 Table 2: CoAP Block3 and Block4 Option Numbers]]></artwork>
           </figure></t>
 
-        <t>This document suggests XX (TBA1) and XX (TBA2) as a values to be
+        <t>This document suggests 21 (TBA1) and 25 (TBA2) as a values to be
         assigned for the new option numbers.</t>
       </section>
 
