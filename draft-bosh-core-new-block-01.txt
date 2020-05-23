@@ -120,17 +120,17 @@ Internet-Draft       New Block-Wise Transfer Options            May 2020
    fragmentation.
 
    The CoAP Block1 and Block2 Options work well in environments where
-   there are no or minimal packet losses.  They operate synchronously
-   where each block has to be requested and can only ask for (or send)
-   the next block when the request for the previous block has completed.
-   Packet, and hence block transmission rate, is controlled by Round
-   Trip Times (RTTs).
+   there are no or minimal packet losses.  These options operate
+   synchronously where each block has to be requested and can only ask
+   for (or send) the next block when the request for the previous block
+   has completed.  Packet, and hence block transmission rate, is
+   controlled by Round Trip Times (RTTs).
 
    There is a requirement for these blocks of data to be transmitted
    under network conditions where there may be transient packet loss.
    An example is when a network is subject to a Distributed Denial of
    Service (DDoS) attack and there is a need for DDoS mitigation agents
-   to communicate with each other using CoAP (e.g.,
+   relying upon CoAP to communicate with each other (e.g.,
    [I-D.ietf-dots-telemetry]).  As a reminder, [RFC7959] recommends use
    of Confirmable (CON) responses to handle potential packet loss; which
    does not work with a flooded pipe DDoS situation.
