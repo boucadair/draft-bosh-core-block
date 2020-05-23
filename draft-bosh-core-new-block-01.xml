@@ -12,8 +12,9 @@
 <?rfc subcompact="no"?>
 <rfc category="std" docName="draft-bosh-core-new-block-01" ipr="trust200902">
   <front>
-    <title abbrev="New Block-Wise Transfer Options">New Constrained
-    Application Protocol (CoAP) Block-Wise Transfer Options</title>
+    <title abbrev="New Block-Wise Transfer Options">Constrained Application
+    Protocol (CoAP) Block-Wise Transfer Options for Faster
+    Transmission</title>
 
     <author fullname="Mohamed Boucadair" initials="M." surname="Boucadair">
       <organization>Orange</organization>
@@ -89,17 +90,18 @@
 
     <abstract>
       <t>This document specifies new Constrained Application Protocol (CoAP)
-      Block-Wise transfer options: Block3 and Block4 Options. These options
-      are similar to the CoAP Block1 and Block2 Options, but enable faster
-      transmission rates for large amounts of data with less packet
-      interchanges as well as supporting faster recovery should any of the
-      blocks get lost in transmission. </t>
+      Block-Wise transfer options: Block3 and Block4 Options. </t>
+
+      <t>These options are similar to the CoAP Block1 and Block2 Options, but
+      enable faster transmission rates for large amounts of data with less
+      packet interchanges as well as supporting faster recovery should any of
+      the blocks get lost in transmission. </t>
     </abstract>
   </front>
 
   <middle>
     <section anchor="introduction" title="Introduction">
-      <section title="Existing Block-Wise Transfer Options">
+      <section title="Existing CoAP Block-Wise Transfer Options">
         <t>The Constrained Application Protocol (CoAP) <xref
         target="RFC7252"></xref>, although inspired by HTTP, was designed to
         use UDP instead of TCP. The message layer of CoAP over UDP includes
@@ -111,22 +113,22 @@
         <t>The CoAP Block1 and Block2 Options work well in environments where
         there are no or minimal packet losses. They operate synchronously
         where each block has to be requested and can only ask for (or send)
-        the next block when the request for the previous Block has completed.
-        Packet, and hence Block transmission rate, is controlled by Round Trip
-        Times.</t>
+        the next block when the request for the previous block has completed.
+        Packet, and hence block transmission rate, is controlled by Round Trip
+        Times (RTTs).</t>
 
-        <t>There is a requirement for these Blocks of data to be transmitted
+        <t>There is a requirement for these blocks of data to be transmitted
         under network conditions where there may be transient packet loss. An
         example is when a network is subject to a Distributed Denial of
         Service (DDoS) attack and there is a need for DDoS mitigation agents
-        to communicate with each other (e.g., <xref
+        to communicate with each other using CoAP (e.g., <xref
         target="I-D.ietf-dots-telemetry"></xref>). As a reminder, <xref
         target="RFC7959"></xref> recommends use of Confirmable (CON) responses
         to handle potential packet loss; which does not work with a flooded
         pipe DDoS situation.</t>
       </section>
 
-      <section title="New Block-Wise Transfer Options">
+      <section title="New CoAP Block-Wise Transfer Options">
         <t>This document introduces the CoAP Block3 and Block4 Options. These
         options are similar in operation to the CoAP Block1 and Block2 Options
         respectively, but enable faster transmissions of sets of blocks of
@@ -148,25 +150,31 @@
 
         <t>A CoAP endpoint can acknowledge all or a subset of the blocks.
         Concretely, the receiving CoAP endpoint informs the CoAP endpoint
-        sender either successful receipt, or reports on all blocks in the body
+        sender either successful receipt or reports on all blocks in the body
         that have been not yet been received. The CoAP endpoint sender will
         then retransmit only the blocks that have been lost in transmission.
         </t>
 
-        <t>Alternative CoAP Options may be considered to cover the extra
-        functionality of the Block3 and Block4 Options using Block1 and
-        Block2, but then the semantic and usage of the Block1 and Block2
+        <t>Alternative CoAP options may be considered to cover the extra
+        functionality of the Block3 and Block4 Options using Block1 and Block2
+        Options, but then the semantic and usage of the Block1 and Block2
         Options would have to change.</t>
 
         <t>The deviation from Block1 and Block2 Options are specified in <xref
         target="spec"></xref>. Pointers to appropriate [RFC7959] sections are
         provided.</t>
+
+        <t>The specification refers to the base CoAP methods defined in
+        Section 5.8 of <xref target="RFC7252"></xref> and the new CoAP
+        methods, FETCH, PATCH, and iPATCH introdcued in <xref
+        target="RFC8132"></xref>. </t>
       </section>
 
       <section title="New CoAP Response Code">
-        <t>This document defines a new Response Code, called TBA3 (Missing
-        payloads), to report on payloads using the Block3 Option that are not
-        received by the server. </t>
+        <t>This document defines a new CoAP Response Code (Section 5.9 of
+        <xref target="RFC7252"></xref>), called TBA3 (Missing payloads), to
+        report on payloads using the Block3 Option that are not received by
+        the server. </t>
 
         <t>See <xref target="code"></xref> for more details. </t>
       </section>
@@ -174,14 +182,15 @@
       <section title="Applicability Scope">
         <t>The mechanism specified in the document includes guards to prevent
         a CoAP agent from overloading the network by adopting an aggressive
-        sending rate. These guards must be followed in addition to existing
-        CoAP congestion control as specified in Section 4.7 of <xref
+        sending rate. These guards MUST be followed in addition to the
+        existing CoAP congestion control as specified in Section 4.7 of <xref
         target="RFC7252"></xref>. </t>
 
-        <t>This mechanism targets applications such as DOTS that can't use
-        Confirmable (CON) responses to handle potential packet loss and that
-        supports application-specific mechanism to assess whether the remote
-        peer is responsive (e.g., DOTS heartbeats <xref
+        <t>This mechanism targets applications such as DDoS Open Threat
+        Signaling (DOTS) that can't use Confirmable (CON) responses to handle
+        potential packet loss and that support application-specific mechanisms
+        to assess whether the remote peer is responsive (e.g., DOTS heartbeats
+        in Section 4.7 of <xref
         target="I-D.ietf-dots-signal-channel"></xref>).</t>
       </section>
     </section>
@@ -225,17 +234,17 @@
 ]]></artwork>
           </figure></t>
 
-        <t>The Block3 Option pertains to the request payload, and the Block4
-        Option pertains to the response payload. The Content-Format Option
-        applies to the body, not to the payload (i.e., it must be the same for
-        all payloads of the same body). </t>
+        <t>The Block3 and Block4 Options can be present in both the request
+        and response messages. The Block3 Option pertains to the request
+        payload and the Block4 Option pertains to the response payload. The
+        Content-Format Option applies to the body, not to the payload (i.e.,
+        it must be the same for all payloads of the same body). </t>
 
-        <t>For the methods defined in <xref target="RFC7252"></xref> and <xref
-        target="RFC8132"></xref>, Block3 is useful with the payload-bearing
-        POST, PUT, PATCH, and iPATCH requests and their responses (2.01 and
-        2.04). Block4 Option is useful with GET, POST, PUT, and FETCH requests
-        and their payload-bearing responses (2.01, 2.03, 2.04, and 2.05)
-        (Section 5.5 of <xref target="RFC7252"></xref>).</t>
+        <t>Block3 is useful with the payload-bearing POST, PUT, PATCH, and
+        iPATCH requests and their responses (2.01 and 2.04). Block4 Option is
+        useful with GET, POST, PUT, and FETCH requests and their
+        payload-bearing responses (2.01, 2.03, 2.04, and 2.05) (Section 5.5 of
+        <xref target="RFC7252"></xref>).</t>
 
         <t>To indicate support for Block4 responses, the CoAP client MUST
         include the Block4 Option in a GET or FETCH request so that the server
@@ -347,7 +356,7 @@
 ]]></artwork>
           </figure></t>
 
-        <t>The twenty-fourth least significant bit is the S-bit ("val &amp;
+        <t>The twenty-fourth least significant bit is the S bit ("val &amp;
         0x1000000").</t>
 
         <t>The option value shifted right by 25 (&ldquo;(val &gt;&gt;
@@ -359,7 +368,7 @@
 
         <t>Within the option value of a Block3 or Block4 Option, the meaning
         of the option fields is defined below. Note that the block size (SZX,
-        size exponent), the M-bit, and the NUM fields are defined in Section
+        size exponent), the M bit, and the NUM fields are defined in Section
         2.2 of <xref target="RFC7959"></xref>, but are provided below for the
         reader's convenience:<list style="hanging">
             <t hangText="BID: ">This block identifier is the same for all of
@@ -384,14 +393,14 @@
             block of a body (i.e., starting with the first byte of the
             body).</t>
 
-            <t hangText="M: ">More bit ("not last block"). For descriptive
-            usage, this bit, if unset, indicates that the payload in this
-            message is the last block in the body; when set, it indicates that
-            there are one or more additional blocks available. <vspace
-            blankLines="1" />When a Block4 Option is used in a request to
-            retrieve a specific block number ("control usage"), the M-bit MUST
-            be sent as zero and ignored on reception. In a Block3 Option in a
-            response, the M-bit is used to indicate atomicity, similar to
+            <t hangText="M: ">More bit (i.e., "not last block"). For
+            descriptive usage, this bit, if unset, indicates that the payload
+            in this message is the last block in the body; when set, it
+            indicates that there are one or more additional blocks available.
+            <vspace blankLines="1" />When a Block4 Option is used in a request
+            to retrieve a specific block number ("control usage"), the M bit
+            MUST be sent as zero and ignored on reception. In a Block3 Option
+            in a response, the M bit is used to indicate atomicity, similar to
             Block1 Option (<xref target="RFC7959"></xref>).</t>
 
             <t hangText="SZX: ">Block Size. The block size is represented as a
@@ -400,22 +409,21 @@
             of SZX are 0 to 6, i.e., the minimum block size is 2**(0+4) = 16
             and the maximum is 2**(6+4) = 1024. The value 7 for SZX (which
             would indicate a block size of 2048) is used as a BERT Option in
-            <xref target="RFC8323"></xref>.<vspace blankLines="1" />There is
-            no default value for the Block3 and Block4 Options. Absence of one
-            of these options is equivalent to an option value of 0 with
-            respect to the value of NUM, M, S, and BID that could be given in
-            the option, i.e., it indicates that the current block is the first
-            and only block of the transfer (block number is set to 0, M and S
-            bits are unset, and BID is set to 0). However, in contrast to the
-            explicit value 0, which would indicate an SZX of 0, and thus a
-            size value of 16 bytes, there is no specific explicit size implied
-            by the absence of the option -- the size is left unspecified. (As
-            for any uint, the explicit value 0 is efficiently indicated by a
-            zero-length option; this, therefore, is different in semantics
-            from the absence of the option).</t>
+            Section 6 of <xref target="RFC8323"></xref>.</t>
           </list></t>
 
-        <t></t>
+        <t>There is no default value for the Block3 and Block4 Options.
+        Absence of one of these options is equivalent to an option value of 0
+        with respect to the value of NUM, M, S, and BID that could be given in
+        the option, i.e., it indicates that the current block is the first and
+        only block of the transfer (block number is set to 0, M and S bits are
+        unset, and BID is set to 0). However, in contrast to the explicit
+        value 0, which would indicate an SZX of 0, and thus a size value of 16
+        bytes, there is no specific explicit size implied by the absence of
+        the option -- the size is left unspecified. (As for any uint, the
+        explicit value 0 is efficiently indicated by a zero-length option;
+        this, therefore, is different in semantics from the absence of the
+        option).</t>
       </section>
 
       <section title="Using the Block3 Option ">
@@ -444,17 +452,17 @@
 
         <t>Also, for NON transmissions, it is permissible, but not required,
         to send a Confirmable packet for the final payload of a body (that is,
-        &lsquo;M&rsquo; bit unset). If a Confirmable packet is used, then the
-        client MUST wait for the 2.01 (Created) or 2.04 (Changed) Response
-        Codes to be returned for successful transmission, or TBA3 to then
-        resend the missing blocks (if any).</t>
+        M bit unset). If a Confirmable packet is used, then the client MUST
+        wait for the 2.01 (Created) or 2.04 (Changed) Response Codes to be
+        returned for successful transmission, or TBA3 to then resend the
+        missing blocks (if any).</t>
 
         <t>With NON transmission, the server acknowledges receipt of all of
         the payloads that make up the body or respond at any time during the
         receipt of the payloads to acknowledge that some of the payloads have
         arrived, but others are missing. It is RECOMMENDED that, unless there
         are receipt issues, the server only responds when the final payload
-        (i.e., 'M' bit unset) is received.</t>
+        (i.e., M bit unset) is received.</t>
 
         <t>For Confirmable transmission, the server MUST continue to
         acknowledge each packet. NSTART will also need to be increased from
@@ -483,19 +491,18 @@
 
         <t>A TBA3 (Missing Payloads) Response Code indicates that some of the
         payloads are missing and need to be resent. The client then
-        re-transmits the missing payloads using Block3 to specify the BID, 'S'
-        bit, block number, SZX, and &lsquo;M&rsquo; bit unset. As discussed
-        above, the sending of the list of missing blocks is subject to
-        MAX_PAYLOAD.</t>
+        re-transmits the missing payloads using Block3 to specify the BID, M
+        bit, block number, SZX, and M bit unset. As discussed above, the
+        sending of the list of missing blocks is subject to MAX_PAYLOAD.</t>
 
         <t>If the server has not received the final payload (i.e., a block
-        with &lsquo;M&rsquo; bit unset), but one or other payloads have been
-        received, it SHOULD wait for up to MAX_TRANSMIT_SPAN (Section 4.8.2 of
-        <xref target="RFC7252"></xref>) before sending the TBA3 (Missing
-        Payloads) Response Code. However, this timer MAY be reduced to two
-        times ACK_TIMEOUT before sending a TBA3 (Missing Payloads) Response
-        Code to cover the situation where MAX_PAYLOADS has been triggered by
-        the client causing a break in transmission.</t>
+        with M bit unset), but one or other payloads have been received, it
+        SHOULD wait for up to MAX_TRANSMIT_SPAN (Section 4.8.2 of <xref
+        target="RFC7252"></xref>) before sending the TBA3 (Missing Payloads)
+        Response Code. However, this timer MAY be reduced to two times
+        ACK_TIMEOUT before sending a TBA3 (Missing Payloads) Response Code to
+        cover the situation where MAX_PAYLOADS has been triggered by the
+        client causing a break in transmission.</t>
 
         <t>In all cases, multiple TBA3 (Missing Payloads) Response Codes are
         traffic limited by PROBING_RATE.</t>
@@ -520,7 +527,7 @@
 
         <t>The initiating request that contains Block4 Option MUST set both
         BID and 'M' to 0. All other Block4 Options in a request MUST have the
-        &lsquo;M&rsquo; bit unset.</t>
+        M bit unset.</t>
 
         <t>The payloads sent back from the server as a response MUST all have
         the same BID which MUST NOT be 0. The sending of the payloads is
@@ -535,10 +542,9 @@
         in time terms less than the ACK_TIMEOUT delay.</t>
 
         <t>Also, for NON transmission, it is permissible, but not required, to
-        send a Confirmable packet for the final payload of a body (i.e.,
-        &lsquo;M&rsquo; bit unset). If a Confirmable packet is used, the
-        server MUST wait for the ACK to be returned for successful
-        transmission.</t>
+        send a Confirmable packet for the final payload of a body (i.e., M bit
+        unset). If a Confirmable packet is used, the server MUST wait for the
+        ACK to be returned for successful transmission.</t>
 
         <t>If the client detects that some of the payloads are missing, the
         missing payloads are requested by issuing a new GET or FETCH request
@@ -546,7 +552,7 @@
         blocks. A new Token MUST be used for this request. The rate of
         requests for missing blocks is subject to PROBING_RATE.</t>
 
-        <t>The client may elect to request the missing blocks, or just ignore
+        <t>The client may elect to request the missing blocks or just ignore
         the partial body.</t>
 
         <t>All the payload responses to a specific GET or FETCH request MUST
@@ -558,9 +564,8 @@
 
         <t>For Confirmable transmission, the client SHOULD continue to
         acknowledge each packet as well as issuing a separate GET or FETCH for
-        the missing blocks. NSTART <xref target="RFC7252"></xref> will also
-        need to be increased from the default (1) to get faster transmission
-        rates.</t>
+        the missing blocks. NSTART will also need to be increased from the
+        default (1) to get faster transmission rates.</t>
 
         <t>If the server transmits a new body of data with a new BID to the
         same client with the same Token, the client MUST remove any partially
@@ -593,10 +598,10 @@
       </section>
 
       <section title="Working with Size1 and Size2 Options">
-        <t><xref target="RFC7959"></xref> defines two CoAP Options, Size1 for
-        indicating the size of the representation transferred in requests, and
-        Size2 for indicating the size of the representation transferred in
-        responses.</t>
+        <t>Section 4 of <xref target="RFC7959"></xref> defines two CoAP
+        options: Size1 for indicating the size of the representation
+        transferred in requests and Size2 for indicating the size of the
+        representation transferred in responses.</t>
 
         <t>It is RECOMMENDED that the Size1 Option is used with the Block3
         Option and that the Size2 Option is used with the Block4 Option.</t>
@@ -608,19 +613,19 @@
       <section anchor="stream"
                title="Streaming Support for the Block3 and Block4 Options">
         <t>If the Size1 Option is not specified, there is support for
-        streaming data to the server by always setting the 'S' and 'M' bits in
-        the payload. The server can still indicate missing blocks with the
-        TBA3 (Missing Payloads) Response Code but is NOT RECOMMENDED. By
-        unsettling the 'M' bit, the client can indicate that this is the last
-        payload and hence the end of the streaming of data.</t>
+        streaming data to the server by always setting the S and M bits in the
+        payload. The server can still indicate missing blocks with the TBA3
+        (Missing Payloads) Response Code but is NOT RECOMMENDED. By unsettling
+        the M bit, the client can indicate that this is the last payload and
+        hence the end of the streaming of data.</t>
 
         <t>Likewise, if the Size2 Option is not specified, there is support
-        for streaming data to the client by always setting the 'S' and 'M'
-        bits in the payload. The client can request missing blocks but is NOT
+        for streaming data to the client by always setting the S and M bits in
+        the payload. The client can request missing blocks but is NOT
         RECOMMENDED. The client needs to indicate to the server that it can
-        handle streamed data by setting the 'S' bit in the initial request. If
+        handle streamed data by setting the S bit in the initial request. If
         the client no longer wants to receive data, it can send a GET request
-        to the same resource with the same BID, but both 'M' and 'S' bits
+        to the same resource with the same BID, but both M and S bits
         unset.</t>
 
         <t>When the Block Number (NUM) reaches the maximum(2**20 -1), it
@@ -631,7 +636,7 @@
         that the network is not overloaded with too much traffic.</t>
       </section>
 
-      <section title="Working with Etag Option">
+      <section title="Working with ETag Option">
         <t>The ETag Option defined in Section 5.10.6 of <xref
         target="RFC7252"></xref> applies to the whole representation of the
         resource, and thus to the body of the response.</t>
@@ -657,8 +662,9 @@
 
     <section anchor="code" title="TBA3 (Missing Payloads) Response Code">
       <t>TBA3 (Missing Payloads) Response Code is a new client error status
-      code used to indicate that the server has not received the blocks of the
-      request body that it needs to proceed. </t>
+      code (Section 5.9.2 of <xref target="RFC7252"></xref>) used to indicate
+      that the server has not received the blocks of the request body that it
+      needs to proceed. </t>
 
       <t>Likely causes are the client has not sent all blocks, some blocks
       were dropped during transmission, or the client has sent them long
@@ -674,8 +680,9 @@
       Response Codes can be sent back; each covering a unique set of missing
       blocks.</t>
 
-      <t>The Content-Format Option MUST be used in the TBA3 (Missing Payloads)
-      Response Code, and set to &ldquo;application/cbor&rdquo;.</t>
+      <t>The Content-Format Option (Section 5.10.3 of <xref
+      target="RFC7252"></xref>) MUST be used in the TBA3 (Missing Payloads)
+      Response Code. It MUST be set to "application/cbor".</t>
     </section>
 
     <section title="Caching Considerations">
@@ -684,7 +691,7 @@
       follow the recommendations in Section 5.7.1 of <xref
       target="RFC7252"></xref> for caching.</t>
 
-      <t>If the 'S' bit is set, the data SHOULD NOT be cached.</t>
+      <t>If the S bit is set, the data SHOULD NOT be cached.</t>
 
       <t>This specification does not require a proxy to obtain the complete
       representation before it serves parts of it to the client. Otherwise,
